@@ -26,6 +26,8 @@ sobre servicios con costo fijo por hora, para maximizar la duración del crédit
 | Secretos | Secret Manager | Variables de entorno | Requisito explícito: ninguna credencial en código |
 | Notificaciones | Pub/Sub + Cloud Monitoring/Logging alerting | — | Integra nativamente con Workflows/Cloud Run y permite alertas por correo/canal |
 
+**Proyecto GCP:** `finbank-data-platform-dev` (región por defecto `us-central1`)
+
 > Estado del proyecto: en construcción por fases. Ver `PLAN.md` para el checklist detallado
 > y el estado de avance por fase.
 

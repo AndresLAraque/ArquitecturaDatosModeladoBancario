@@ -9,24 +9,25 @@ Decisiones cerradas: **Plataforma = GCP (free trial)** · **Sector = Escenario A
 ## Fase 0 — Prerrequisitos (antes de escribir código)
 
 ### Cuenta y proyecto GCP (lo hace el usuario)
-- [ ] Crear/usar cuenta Google, activar **free trial** ($300 USD / 90 días) en https://console.cloud.google.com
-- [ ] Crear un proyecto GCP dedicado, ej. `finbank-data-platform-dev` (el project ID debe ser único global)
-- [ ] Confirmar que la Billing Account del trial queda vinculada al proyecto
+- [x] Crear/usar cuenta Google, activar **free trial** ($300 USD / 90 días) en https://console.cloud.google.com
+- [x] Crear proyecto GCP dedicado: **`finbank-data-platform-dev`** (región `us-central1`)
+- [x] Billing Account del trial (`01F9B4-329843-7DE70D`) vinculada y `billingEnabled: true`
+      — nota: la cuenta se llama genéricamente "Mi cuenta de facturación" (COP), no
+      "...Trial..."; hay una cuenta vieja `0187EC-7D6577-03A296` (USD) de un trial anterior
+      que quedó `open: false` — esa no se usa, no confundir
 - [ ] **Fijar un presupuesto y alerta de billing** (Billing → Budgets & alerts) en, p.ej., $50/$100/$200 — red de seguridad para no drenar el crédito sin darte cuenta
-- [ ] Habilitar las APIs que se irán necesitando: Cloud Storage, BigQuery, Cloud SQL Admin,
-      Cloud Workflows, Cloud Scheduler, Cloud Run, Secret Manager, Cloud Logging/Monitoring,
-      Pub/Sub, IAM, Artifact Registry (para imágenes de Cloud Run)
+- [ ] Habilitar las APIs necesarias — se hará vía Terraform (`google_project_service`) en
+      Fase 2 en vez de manualmente, para que quede como código: Cloud Storage, BigQuery,
+      Cloud SQL Admin, Cloud Workflows, Cloud Scheduler, Cloud Run, Secret Manager,
+      Cloud Logging/Monitoring, Pub/Sub, IAM, Artifact Registry
 
 ### Herramientas locales (verificado en esta máquina)
 - [x] Git — instalado
 - [x] Docker Desktop — instalado (para Postgres local de desarrollo)
-- [ ] **Python 3.11+** — no encontrado, instalar (evitar el alias de Microsoft Store; usar
-      instalador oficial python.org o `winget install Python.Python.3.12`)
-- [ ] **Google Cloud SDK (`gcloud`)** — no encontrado, instalar desde
-      https://cloud.google.com/sdk/docs/install (necesario para `gcloud auth login`,
-      Application Default Credentials que usará Terraform y los scripts)
-- [ ] **Terraform** — no encontrado, instalar (`choco install terraform` o binario desde
-      https://developer.hashicorp.com/terraform/install)
+- [x] **Python 3.12** — instalado vía `winget install Python.Python.3.12`
+- [x] **Google Cloud SDK (`gcloud`)** — instalado, `gcloud init` completado, cuenta y
+      proyecto configurados (ver arriba)
+- [x] **Terraform 1.15.8** — instalado vía `winget install Hashicorp.Terraform`
 - [ ] `dbt-bigquery` — se instala vía `pip` dentro del venv del proyecto en Fase 3
 - [ ] Cuenta de GitHub/GitLab con el repo remoto creado (aún no vinculado — repo local ya
       inicializado con `git init`)
