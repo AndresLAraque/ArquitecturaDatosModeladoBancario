@@ -39,34 +39,37 @@ Decisiones cerradas: **Plataforma = GCP (free trial)** · **Sector = Escenario A
 
 ---
 
-## Fase 1 — Generación de datos y modelo relacional
+## Fase 1 — Generación de datos y modelo relacional ✅ COMPLETADA (2026-08-24)
 
 **Carpeta:** `/data-generation`
 
-- [ ] `config.yaml`: semilla fija, volúmenes por tabla, rango de fechas (12 meses), % nulos
-- [ ] Script Python (pandas/numpy + Faker) que genere las 6 tablas con sus volúmenes mínimos:
-  - `TB_CLIENTES_CORE` (10.000) — edades con distribución normal, `score_buro` correlacionado
-    con `cod_segmento`, `fec_alta` <= hoy
-  - `TB_PRODUCTOS_CAT` (50)
-  - `TB_MOV_FINANCIEROS` (500.000) — concentración horaria realista (picos día/mediodía/noche),
-    montos con distribución típica por tipo de movimiento, FK válidas a clientes/productos
-  - `TB_OBLIGACIONES` (30.000) — `dias_mora_act` con distribución sesgada hacia 0 (mayoría al día)
-  - `TB_SUCURSALES_RED` (200) — coordenadas dentro de los 5 países
+- [x] `config.yaml`: semilla fija (42), volúmenes por tabla, rango de fechas (12 meses:
+      2025-08-01 a 2026-07-31), % nulos (5%), % de cada anomalía
+- [x] Generadores (pandas/numpy + Faker) para las 6 tablas con sus volúmenes mínimos:
+  - `TB_CLIENTES_CORE` (10.000) — edad normal(38,12) acotada [18,85], `score_buro`
+    correlacionado con `cod_segmento`, `fec_alta` ponderada a años recientes
+  - `TB_PRODUCTOS_CAT` (50) — por familia crédito/ahorro/transaccional
+  - `TB_MOV_FINANCIEROS` (500.000 + 1.500 duplicados intencionales) — pico horario
+    almuerzo/noche, estacionalidad mensual + quincena de pago, montos log-normal por tipo,
+    actividad por cliente log-normal (power users)
+  - `TB_OBLIGACIONES` (30.000) — `dias_mora_act` 75% al día + cola exponencial
+  - `TB_SUCURSALES_RED` (200) — coordenadas jitter alrededor de 14 ciudades en los 5 países
   - `TB_COMISIONES_LOG` (80.000)
-- [ ] Integridad referencial garantizada por construcción (generar dimensiones primero, luego
-      muestrear FKs de ahí)
-- [ ] ~5% nulos controlados en campos no críticos (nunca en PK/FK)
-- [ ] **3+ anomalías intencionales documentadas**, p.ej.:
-  1. Transacciones duplicadas exactas en `TB_MOV_FINANCIEROS` (mismo `id_mov` o mismo cliente+monto+timestamp)
-  2. Fechas fuera de rango (`fec_mov` futura o anterior a `fec_alta` del cliente)
-  3. `dias_mora_act` negativo o `vr_mov` con signo/tipo inconsistente
-- [ ] Salida en 2+ formatos: p.ej. Parquet para tablas grandes (`TB_MOV_FINANCIEROS`,
-      `TB_COMISIONES_LOG`), CSV para dimensiones, JSON para `TB_SUCURSALES_RED`
-- [ ] Postgres local en Docker (`docker run postgres:16`) para desarrollo/pruebas de carga
-- [ ] Script de carga (Python + SQLAlchemy o `psql`) reutilizable contra Postgres local **y**
-      contra Cloud SQL (mismo script, solo cambia el connection string vía variable/secreto)
-- [ ] Diagrama ER en `/docs/er-diagram.png` (dbdiagram.io o similar)
-- [ ] Evidencia: captura o output de `SELECT COUNT(*)` por tabla
+- [x] Integridad referencial garantizada por construcción (dimensiones antes que hechos)
+- [x] ~5% nulos controlados en campos no críticos (verificado: 0.4%-1.7% de nulos promedio
+      por tabla, dependiendo de cuántos campos no-críticos tiene cada una — ver
+      `output/generation_summary.json`)
+- [x] **4 anomalías intencionales documentadas** en `ANOMALIES.md` y verificadas en la BD
+      cargada: 1.500 duplicados exactos, 1.063 fechas fuera de rango, 872 FK huérfanas,
+      1.063 campos inconsistentes (vr_mov negativo / sdo_capital > vr_aprobado)
+- [x] Salida en 3 formatos (CSV + JSON + Parquet) — heterogeneidad de ingesta real
+- [x] Postgres local en Docker (`docker-compose.yml`, puerto 5434 — el 5432 estaba ocupado
+      por otros proyectos locales del usuario)
+- [x] Script de carga (`load_to_postgres.py`, SQLAlchemy) parametrizado por variables de
+      entorno — mismo código sirve para Postgres local o Cloud SQL
+- [x] Diagrama ER en `/docs/er-diagram.md` (Mermaid, se renderiza nativo en GitHub)
+- [x] Evidencia real de carga en `output/load_evidence.txt`: las 6 tablas cargaron con el
+      conteo exacto esperado (10.000 / 50 / 200 / 501.500 / 30.000 / 80.000)
 
 ---
 

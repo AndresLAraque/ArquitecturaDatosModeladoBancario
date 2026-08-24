@@ -1,0 +1,56 @@
+{
+  "seed": 42,
+  "date_range": {
+    "start": "2025-08-01",
+    "end": "2026-07-31"
+  },
+  "tables": {
+    "TB_CLIENTES_CORE": {
+      "filas": 10000,
+      "formato": "json",
+      "archivo": "TB_CLIENTES_CORE.json",
+      "pct_nulos_promedio": 1.13
+    },
+    "TB_PRODUCTOS_CAT": {
+      "filas": 50,
+      "formato": "csv",
+      "archivo": "TB_PRODUCTOS_CAT.csv",
+      "pct_nulos_promedio": 11.25
+    },
+    "TB_SUCURSALES_RED": {
+      "filas": 200,
+      "formato": "json",
+      "archivo": "TB_SUCURSALES_RED.json",
+      "pct_nulos_promedio": 0.94
+    },
+    "TB_MOV_FINANCIEROS": {
+      "filas": 501500,
+      "formato": "parquet",
+      "archivo": "TB_MOV_FINANCIEROS.parquet",
+      "pct_nulos_promedio": 1.66
+    },
+    "TB_OBLIGACIONES": {
+      "filas": 30000,
+      "formato": "parquet",
+      "archivo": "TB_OBLIGACIONES.parquet",
+      "pct_nulos_promedio": 0.43
+    },
+    "TB_COMISIONES_LOG": {
+      "filas": 80000,
+      "formato": "parquet",
+      "archivo": "TB_COMISIONES_LOG.parquet",
+      "pct_nulos_promedio": 0.7
+    }
+  },
+  "anomalias": {
+    "total_filas_afectadas": 4498,
+    "por_tipo": {
+      "DUPLICADO_EXACTO": 1500,
+      "FECHA_FUERA_DE_RANGO": 1063,
+      "CAMPO_INCONSISTENTE": 1063,
+      "FK_HUERFANA": 872
+    },
+    "archivo": "anomalies_log.csv"
+  },
+  "duracion_segundos": 17.68
+}

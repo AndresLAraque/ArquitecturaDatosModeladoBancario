@@ -13,3 +13,9 @@ Todas las entradas siguen el formato: `YYYY-MM-DD — autor — descripción`.
   del free trial vinculado (`us-central1`); se eliminó un proyecto duplicado creado por error
   (`fibank-data-platform`, typo, sin billing) tras validar que había dos organizaciones y dos
   billing accounts distintas en la cuenta.
+- 2026-08-24 — andresypm@gmail.com — Fase 1 completada: generador sintético reproducible
+  (semilla 42) de las 6 tablas fuente de FinBank en `/data-generation`, con distribuciones
+  realistas, ~5% de nulos controlados, 4 anomalías intencionales documentadas en
+  `ANOMALIES.md`, salida en CSV+JSON+Parquet. Cargado exitosamente en Postgres local
+  (Docker, puerto 5434) vía `load_to_postgres.py` — evidencia en
+  `data-generation/output/load_evidence.txt`. Diagrama ER agregado en `/docs/er-diagram.md`.

@@ -1,0 +1,60 @@
+# Configuración centralizada de la generación de datos sintéticos — FinBank
+# Cambiar estos valores es suficiente para regenerar un dataset distinto
+# (otro volumen, otro rango de fechas, otra semilla) sin tocar el código.
+
+seed: 42
+
+date_range:
+  # Cobertura temporal >= 12 meses, exigida por el enunciado.
+  start: "2025-08-01"
+  end: "2026-07-31"
+
+volumes:
+  clientes: 10000
+  productos: 50
+  sucursales: 200
+  movimientos: 500000
+  obligaciones: 30000
+  comisiones: 80000
+
+# % aproximado de nulos a inyectar en campos NO críticos (nunca en PK/FK).
+null_pct: 0.05
+
+# % de filas de TB_MOV_FINANCIEROS/TB_OBLIGACIONES afectadas por cada anomalía
+# intencional. Documentadas en detalle en ANOMALIES.md.
+anomalies:
+  duplicados_exactos_pct: 0.003      # TB_MOV_FINANCIEROS
+  fechas_fuera_rango_pct: 0.002      # TB_MOV_FINANCIEROS + TB_OBLIGACIONES
+  fk_huerfana_pct: 0.0015            # TB_MOV_FINANCIEROS + TB_COMISIONES_LOG
+  campos_inconsistentes_pct: 0.002   # TB_MOV_FINANCIEROS + TB_OBLIGACIONES
+
+# Formatos de salida por tabla — deliberadamente heterogéneos para simular
+# un escenario de ingesta real con múltiples formatos de origen.
+output_formats:
+  TB_CLIENTES_CORE: json
+  TB_PRODUCTOS_CAT: csv
+  TB_SUCURSALES_RED: json
+  TB_MOV_FINANCIEROS: parquet
+  TB_OBLIGACIONES: parquet
+  TB_COMISIONES_LOG: parquet
+
+output_dir: "./output"
+
+# Conexión a la base relacional destino: SOLO nombres de variables de entorno,
+# nunca credenciales reales. Los valores se toman de `.env` (gitignored;
+# copiar `.env.example` -> `.env` y completar) para desarrollo local con
+# Docker, o de variables de entorno reales del entorno de ejecución cuando
+# se apunte a Cloud SQL.
+database:
+  driver: "postgresql+psycopg2"
+  defaults:
+    host: "localhost"
+    port: 5434   # no 5432: puerto reservado en esta máquina por otros proyectos locales
+    name: "finbank"
+    user: "finbank"
+  env_vars:
+    host: "FINBANK_DB_HOST"
+    port: "FINBANK_DB_PORT"
+    name: "FINBANK_DB_NAME"
+    user: "FINBANK_DB_USER"
+    password: "FINBANK_DB_PASSWORD"   # obligatoria, sin valor por defecto

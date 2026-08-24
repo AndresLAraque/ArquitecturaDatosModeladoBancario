@@ -29,6 +29,10 @@ service-account*.json
 .DS_Store
 Thumbs.db
 
-# Data (generated locally, no versionar volúmenes grandes)
-data-generation/output/
+# Data (generated localmente, no versionar los volúmenes grandes) —
+# pero SÍ versionar la evidencia pequeña: anomalies_log.csv,
+# generation_summary.json, load_evidence.txt
+data-generation/output/TB_*.csv
+data-generation/output/TB_*.json
+data-generation/output/TB_*.parquet
 *.parquet
