@@ -1,0 +1,178 @@
+# Plan de trabajo — FinBank Data Platform (Escenario A, GCP)
+
+Decisiones cerradas: **Plataforma = GCP (free trial)** · **Sector = Escenario A (Banca)** ·
+**Orquestación = Cloud Workflows + Cloud Scheduler + Cloud Run** ·
+**Silver/Gold = BigQuery + dbt** · **IaC = Terraform**
+
+---
+
+## Fase 0 — Prerrequisitos (antes de escribir código)
+
+### Cuenta y proyecto GCP (lo hace el usuario)
+- [ ] Crear/usar cuenta Google, activar **free trial** ($300 USD / 90 días) en https://console.cloud.google.com
+- [ ] Crear un proyecto GCP dedicado, ej. `finbank-data-platform-dev` (el project ID debe ser único global)
+- [ ] Confirmar que la Billing Account del trial queda vinculada al proyecto
+- [ ] **Fijar un presupuesto y alerta de billing** (Billing → Budgets & alerts) en, p.ej., $50/$100/$200 — red de seguridad para no drenar el crédito sin darte cuenta
+- [ ] Habilitar las APIs que se irán necesitando: Cloud Storage, BigQuery, Cloud SQL Admin,
+      Cloud Workflows, Cloud Scheduler, Cloud Run, Secret Manager, Cloud Logging/Monitoring,
+      Pub/Sub, IAM, Artifact Registry (para imágenes de Cloud Run)
+
+### Herramientas locales (verificado en esta máquina)
+- [x] Git — instalado
+- [x] Docker Desktop — instalado (para Postgres local de desarrollo)
+- [ ] **Python 3.11+** — no encontrado, instalar (evitar el alias de Microsoft Store; usar
+      instalador oficial python.org o `winget install Python.Python.3.12`)
+- [ ] **Google Cloud SDK (`gcloud`)** — no encontrado, instalar desde
+      https://cloud.google.com/sdk/docs/install (necesario para `gcloud auth login`,
+      Application Default Credentials que usará Terraform y los scripts)
+- [ ] **Terraform** — no encontrado, instalar (`choco install terraform` o binario desde
+      https://developer.hashicorp.com/terraform/install)
+- [ ] `dbt-bigquery` — se instala vía `pip` dentro del venv del proyecto en Fase 3
+- [ ] Cuenta de GitHub/GitLab con el repo remoto creado (aún no vinculado — repo local ya
+      inicializado con `git init`)
+
+### Decisiones a mantener consistentes en todo el repo
+- [x] Nombres de tablas fuente exactamente como en el enunciado (`TB_CLIENTES_CORE`, etc.)
+- [x] Región GCP única para todos los recursos (sugerido: `us-central1`, entra en free tier de GCS)
+- [ ] Convención de nombres de recursos: `finbank-<capa>-<entorno>` (ej. `finbank-bronze-dev`)
+
+---
+
+## Fase 1 — Generación de datos y modelo relacional
+
+**Carpeta:** `/data-generation`
+
+- [ ] `config.yaml`: semilla fija, volúmenes por tabla, rango de fechas (12 meses), % nulos
+- [ ] Script Python (pandas/numpy + Faker) que genere las 6 tablas con sus volúmenes mínimos:
+  - `TB_CLIENTES_CORE` (10.000) — edades con distribución normal, `score_buro` correlacionado
+    con `cod_segmento`, `fec_alta` <= hoy
+  - `TB_PRODUCTOS_CAT` (50)
+  - `TB_MOV_FINANCIEROS` (500.000) — concentración horaria realista (picos día/mediodía/noche),
+    montos con distribución típica por tipo de movimiento, FK válidas a clientes/productos
+  - `TB_OBLIGACIONES` (30.000) — `dias_mora_act` con distribución sesgada hacia 0 (mayoría al día)
+  - `TB_SUCURSALES_RED` (200) — coordenadas dentro de los 5 países
+  - `TB_COMISIONES_LOG` (80.000)
+- [ ] Integridad referencial garantizada por construcción (generar dimensiones primero, luego
+      muestrear FKs de ahí)
+- [ ] ~5% nulos controlados en campos no críticos (nunca en PK/FK)
+- [ ] **3+ anomalías intencionales documentadas**, p.ej.:
+  1. Transacciones duplicadas exactas en `TB_MOV_FINANCIEROS` (mismo `id_mov` o mismo cliente+monto+timestamp)
+  2. Fechas fuera de rango (`fec_mov` futura o anterior a `fec_alta` del cliente)
+  3. `dias_mora_act` negativo o `vr_mov` con signo/tipo inconsistente
+- [ ] Salida en 2+ formatos: p.ej. Parquet para tablas grandes (`TB_MOV_FINANCIEROS`,
+      `TB_COMISIONES_LOG`), CSV para dimensiones, JSON para `TB_SUCURSALES_RED`
+- [ ] Postgres local en Docker (`docker run postgres:16`) para desarrollo/pruebas de carga
+- [ ] Script de carga (Python + SQLAlchemy o `psql`) reutilizable contra Postgres local **y**
+      contra Cloud SQL (mismo script, solo cambia el connection string vía variable/secreto)
+- [ ] Diagrama ER en `/docs/er-diagram.png` (dbdiagram.io o similar)
+- [ ] Evidencia: captura o output de `SELECT COUNT(*)` por tabla
+
+---
+
+## Fase 2 — Infraestructura como código (Terraform)
+
+**Carpeta:** `/infra`
+
+- [ ] Backend remoto: bucket GCS dedicado para `terraform.tfstate` (creado *fuera* de Terraform,
+      con un `gcloud storage buckets create` inicial, o en un módulo bootstrap aparte)
+- [ ] Recursos mínimos GCP:
+  - [ ] 3 buckets GCS: `bronze`, `silver`, `gold` (o prefijos dentro de uno con IAM por prefijo)
+  - [ ] BigQuery dataset(s): `finbank_silver`, `finbank_gold` (uno por capa, o por entorno)
+  - [ ] Cloud SQL instance PostgreSQL (tier pequeño, `activation_policy = ALWAYS` solo cuando se use)
+  - [ ] Cloud Run services/jobs para las tareas del pipeline (bronze extract, silver dbt run, gold dbt run)
+  - [ ] Cloud Workflows definition (referenciado, definido en `/orchestration`)
+  - [ ] Cloud Scheduler job (cron diario 02:00 hora local)
+  - [ ] Service Accounts granulares: `sa-ingestion`, `sa-transform`, `sa-orchestrator` (mínimo privilegio)
+  - [ ] Secret Manager: credenciales de Cloud SQL, no expuestas en variables planas
+  - [ ] Cloud Logging (sink si aplica) + Cloud Monitoring alerting policy
+  - [ ] Pub/Sub topic `finbank-alerts` (fallo de tarea, anomalía de volumen, reporte diario)
+- [ ] Variables parametrizadas: `project_id`, `region`, `environment` (`dev`/`prod`), tamaños
+- [ ] Dos entornos vía `dev.tfvars` / `prod.tfvars` (o workspaces)
+- [ ] `outputs.tf`: nombres de buckets, dataset IDs, URLs de Cloud Run, emails de SAs
+- [ ] `.gitignore` con `*.tfstate*`, `.terraform/`, `*.tfvars` si contienen datos sensibles
+- [ ] Evidencia: salida de `terraform apply` + capturas del portal
+
+---
+
+## Fase 3 — Pipeline Medallion
+
+**Carpeta:** `/pipelines`
+
+### Bronze (`/pipelines/bronze`)
+- [ ] Extracción Cloud SQL → GCS en Parquet, sin transformar esquema
+- [ ] 3 columnas de auditoría: `ingestion_ts`, `source_system`, `batch_id`
+- [ ] Particionado `year/month/day` por fecha de ingesta
+- [ ] Log de ejecución (registros procesados, tamaño, duración) — tabla o archivo JSON de logs
+- [ ] Modo incremental: watermark sobre `fec_mov`/`fec_cobro`/etc. o columna de última modificación
+
+### Silver (`/pipelines/silver` — BigQuery + dbt, staging models)
+- [ ] Dedup de exactos + descarte de nulos en campos obligatorios
+- [ ] Tipado estándar (fechas, decimales, etc.)
+- [ ] Validación de integridad referencial → tabla `errores_integridad` con motivo
+- [ ] Estrategia de nulos documentada por columna (imputación / exclusión / flag binario)
+- [ ] Hash/enmascaramiento de PII: `num_doc`, `nomb_cli`, `apell_cli`, datos de contacto
+      (`SHA256` con salt desde Secret Manager)
+- [ ] `ind_sospechoso` calculado aquí (ventana móvil 30 días, > 3 desviaciones estándar) — **debe
+      quedar en Silver, no en Gold**, según regla de negocio explícita
+- [ ] Reporte de calidad por ejecución: % nulos por columna, rechazados, % conformes
+- [ ] Formato: tablas BigQuery nativas (dan upsert/MERGE sin necesitar Delta/Iceberg aparte)
+
+### Gold (`/pipelines/gold` — dbt marts)
+- [ ] `dim_clientes` — nombre completo, edad calculada, segmento con etiqueta legible
+- [ ] `dim_productos` — nombres de negocio, tasa mensual equivalente, familia (crédito/ahorro/transaccional)
+- [ ] `dim_geografia`, `dim_canal` — separados desde `TB_SUCURSALES_RED`
+- [ ] `fact_transacciones` — FK validada, monto en USD, flag horario hábil/no hábil, prom. móvil 30d
+- [ ] `fact_cartera` — `bucket_mora` (5 rangos), clasificación regulatoria A/B/C/D/E, provisión estimada
+- [ ] `fact_rentabilidad_cliente` — ingreso total, CLTV 12 meses (join comisiones + movimientos)
+- [ ] `kpi_cartera_diaria` — agregado por fecha/producto/segmento/ciudad (obligaciones activas,
+      monto cartera, monto mora, tasa mora %, clientes en mora)
+- [ ] Particionamiento Gold por fecha; clustering por segmento/ciudad donde aplique
+- [ ] Documentar linaje de 3+ campos calculados (origen, transformación, propósito) — dbt docs
+      o `docs/linaje.md`
+- [ ] Tabla de errores del pipeline con al menos 1 registro de prueba
+- [ ] 5+ pruebas de calidad (dbt tests / Great Expectations): not_null, unique, relationships,
+      accepted_values (`bucket_mora`), rango de fechas
+
+---
+
+## Fase 4 — Orquestación
+
+**Carpeta:** `/orchestration`
+
+- [ ] Definición YAML de Cloud Workflows: Bronze → Silver → Gold con dependencias explícitas
+      (Silver espera éxito de Bronze; Gold espera éxito de Silver)
+- [ ] Cloud Scheduler: cron `0 2 * * *`, zona horaria local del proyecto (`America/Bogota`)
+- [ ] Reintentos: 3 intentos, backoff exponencial (soportado nativamente por Workflows `retry` policy)
+- [ ] Timeout por paso coherente con volumen (ej. 15-30 min para Silver/Gold)
+- [ ] Alerta de fallo → Pub/Sub → Cloud Function/Monitoring → email, con DAG/tarea/fecha/error
+- [ ] Reporte diario de éxito → registros por capa, tiempo total, # alertas de calidad
+- [ ] Dashboard/log accesible: Cloud Logging + un panel simple en Cloud Monitoring, o vista en
+      BigQuery sobre la tabla de logs de ejecución
+- [ ] Evidencia: captura de ejecución exitosa, captura de alerta de fallo (forzar un error de prueba),
+      captura del reporte diario, historial de 2+ ejecuciones
+
+---
+
+## Fase 5 — Gobierno, seguridad y calidad
+
+- [ ] 3 roles IAM: `data-engineer` (RW todas las capas), `analyst` (solo lectura en dataset Gold),
+      `admin` (control total del proyecto) — vía Terraform (`google_project_iam_member` /
+      roles custom)
+- [ ] Principio de mínimo privilegio en cada Service Account del pipeline
+- [ ] Cloud Audit Logs (Data Access) habilitados sobre BigQuery/GCS
+- [ ] Evidencia de acceso denegado: analyst intentando leer bucket `bronze`/`silver` → 403
+- [ ] Catálogo de datos `/docs/catalogo-datos.md`: tabla, campo, tipo, origen, ¿PII? (Silver + Gold)
+- [ ] Enmascaramiento vigente desde Silver en adelante (ya cubierto en Fase 3)
+- [ ] Evidencia de las 3 alertas: fallo, reporte diario, anomalía de volumen (>30% vs promedio
+      últimas 7 ejecuciones)
+- [ ] Linaje de 3+ campos (ya cubierto en Fase 3, referenciarlo aquí)
+- [ ] `CHANGELOG.md` actualizado en cada hito
+
+---
+
+## Entrega final
+
+- [ ] Repo remoto (GitHub/GitLab) creado y compartido con el evaluador
+- [ ] README con sector + plataforma + justificación como **primera sección**
+- [ ] Todos los entregables de cada fase presentes en sus carpetas
+- [ ] Revisión final: sin credenciales en el historial de git, sin `.tfstate` commiteado
