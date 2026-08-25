@@ -1,0 +1,30 @@
+argument: 'null'
+createTime: '2026-08-25T21:13:54.538878294Z'
+duration: 441.439047944s
+endTime: '2026-08-25T21:21:15.977926238Z'
+error:
+  context: |-
+    KeyError: key not found: rows
+    in step "compute_summary", routine "main", line: 74
+  payload: '{"message":"KeyError: key not found: rows","tags":["KeyError","LookupError"]}'
+  stackTrace:
+    elements:
+    - position:
+        column: '27'
+        length: '27'
+        line: '74'
+      routine: main
+      step: compute_summary
+labels:
+  ambiente: dev
+  goog-terraform-provisioned: 'true'
+  proyecto: finbank-data-platform
+  prueba: dataknow-tecnica
+name: projects/795239331474/locations/us-central1/workflows/finbank-pipeline-dev/executions/14ca2a96-bc6b-47cf-a495-6de79f5204fa
+startTime: '2026-08-25T21:13:54.538878294Z'
+state: FAILED
+status:
+  currentSteps:
+  - routine: main
+    step: compute_summary
+workflowRevisionId: 000003-295

@@ -1,4 +1,4 @@
-# FinBank — Plataforma de Datos (Prueba Técnica DataKnow)
+# FinBank — Plataforma de Datos
 
 **Estado: completa (Fases 0-5).** Repositorio:
 https://github.com/AndresLAraque/ArquitecturaDatosModeladoBancario
@@ -10,25 +10,24 @@ https://github.com/AndresLAraque/ArquitecturaDatosModeladoBancario
 
 ### Justificación
 
-**Sector (Escenario A):** se eligió por ser el dominio con reglas de negocio más ricas para
-demostrar modelado dimensional y lógica de riesgo/fraude (mora, provisión regulatoria,
-detección de transacciones atípicas, CLTV), que ejercitan bien las tres capas de la
-arquitectura Medallón.
+**Sector (Escenario A):** elegí este escenario porque tiene las reglas de negocio más ricas
+del sector bancario — mora, provisión regulatoria, transacciones atípicas, CLTV — y eso
+ejercita bien las tres capas de la arquitectura Medallón.
 
-**Plataforma (GCP):** se eligió GCP porque el candidato dispone de la capa de prueba gratuita
-(USD 300 de crédito). Dentro de GCP se privilegiaron servicios **serverless / pay-per-use**
-sobre servicios con costo fijo por hora, para maximizar la duración del crédito:
+**Plataforma (GCP):** elegí GCP porque tengo acceso a la capa de prueba gratuita (USD 300 de
+crédito). Dentro de GCP prioricé servicios **serverless / pay-per-use** sobre servicios con
+costo fijo por hora, para que el crédito rindiera lo más posible:
 
-| Necesidad | Servicio elegido | Alternativa descartada | Motivo |
-|---|---|---|---|
-| Almacenamiento Bronze | Cloud Storage (bucket `bronze`, Parquet particionado) | — | Requisito explícito del enunciado (Bronze = archivos crudos en la nube) |
-| Almacenamiento Silver/Gold | **BigQuery** (datasets `finbank_silver_dev` / `finbank_gold_dev`) | Parquet en GCS + Spark | Serverless, sin clúster que facture por hora, free tier de 1TB de queries/mes. Los buckets `silver`/`gold` quedan aprovisionados (requisito de la tabla de recursos mínimos) pero la data en sí vive en BigQuery — ver "Arquitectura" abajo |
-| Procesamiento Silver/Gold | **dbt + BigQuery** | PySpark en Dataproc | dbt aporta tests declarativos, documentación y linaje con poco esfuerzo adicional (recomendado explícitamente en el enunciado) |
-| Orquestación | **Cloud Workflows + Cloud Scheduler + Cloud Run Jobs** | Cloud Composer (Airflow gestionado) | Composer cuesta ~300-450 USD/mes incluso en su tamaño mínimo, lo que agotaría el crédito de prueba en días. Workflows+Scheduler+Run es una combinación explícitamente válida en el enunciado, es serverless y permite dependencias, reintentos con backoff y alertas sin costo fijo |
-| Base de datos origen | Cloud SQL (PostgreSQL 16) | — | Motor recomendado por el enunciado para GCP |
-| IaC | Terraform | Pulumi / Deployment Manager | Estándar de facto, multi-cloud, soporta backend remoto en GCS nativamente |
-| Secretos | Secret Manager | Variables de entorno | Requisito explícito: ninguna credencial en código |
-| Notificaciones | Cloud Logging estructurado + Cloud Monitoring (alertas basadas en log) → email | Pub/Sub Topic → función suscriptora | El Pub/Sub Topic que pide la tabla de recursos mínimos **sí está aprovisionado** (`infra/pubsub.tf`, con permiso de publicación para el orquestador), pero la implementación final de las 3 alertas resolvió más simple sin él: el Workflow y Bronze escriben logs estructurados (`jsonPayload.event_type`) y 3 políticas de Cloud Monitoring (log-based) hacen match y envían el correo — sin necesidad de una Cloud Function/Run adicional solo para consumir el topic. El topic queda disponible para integraciones futuras (ej. un webhook de Slack) |
+| Necesidad | Servicio elegido | Motivo |
+|---|---|---|
+| Almacenamiento Bronze | Cloud Storage (bucket `bronze`, Parquet particionado) | Bronze son archivos crudos en la nube |
+| Almacenamiento Silver/Gold | **BigQuery** (`finbank_silver_dev` / `finbank_gold_dev`) | Serverless, sin clúster con costo por hora, 1TB de consultas gratis al mes. Los buckets `silver`/`gold` quedan aprovisionados igual, pero la data vive en BigQuery — ver "Arquitectura" abajo |
+| Procesamiento Silver/Gold | **dbt + BigQuery** | Tests, documentación y linaje con poco esfuerzo extra |
+| Orquestación | **Cloud Workflows + Cloud Scheduler + Cloud Run Jobs** | Serverless y sin costo fijo (Composer/Airflow gestionado cuesta ~300-450 USD/mes incluso mínimo, agotaría el crédito en días) |
+| Base de datos origen | Cloud SQL (PostgreSQL 16) | Motor estándar para este tipo de carga transaccional |
+| IaC | Terraform | Estándar del mercado, soporta backend remoto en GCS |
+| Secretos | Secret Manager | Ninguna credencial en código |
+| Notificaciones | Cloud Logging estructurado + Cloud Monitoring (alertas por log) → email | El Workflow y Bronze escriben logs estructurados y 3 políticas de Cloud Monitoring hacen match y envían el correo, sin necesitar un servicio adicional |
 
 **Proyecto GCP:** `finbank-data-platform-dev` (región `us-central1`)
 
@@ -89,18 +88,32 @@ completa de punta a punta:
 
 # 1. Generar datos sintéticos y cargarlos (Postgres local o Cloud SQL)
 cd data-generation
+
+# 1a. Entorno virtual y variables locales
+#   Windows (PowerShell/cmd):
 python -m venv .venv && .venv\Scripts\activate
+copy .env.example .env
+#   macOS / Linux:
+python3 -m venv .venv && source .venv/bin/activate
+cp .env.example .env
+#   (completar valores locales en .env, nunca commitear)
+
+# 1b. El resto de comandos es igual en cualquier sistema operativo
 pip install -r requirements.txt
-copy .env.example .env   # completar valores locales, nunca commitear
 docker compose up -d
 python main.py
 python load_to_postgres.py
 
 # 2. Aprovisionar toda la infraestructura
 cd ../infra
+#   Windows (PowerShell/cmd):
+copy environments\local.tfvars.example environments\local.tfvars
+#   macOS / Linux:
+cp environments/local.tfvars.example environments/local.tfvars
+#   (completar con tu correo en local.tfvars, nunca commitear)
 terraform init
-terraform plan  -var-file environments/dev.tfvars
-terraform apply -var-file environments/dev.tfvars
+terraform plan  -var-file environments/dev.tfvars -var-file environments/local.tfvars
+terraform apply -var-file environments/dev.tfvars -var-file environments/local.tfvars
 
 # 3. Construir y publicar las imágenes de los Cloud Run Jobs
 cd ..
@@ -144,13 +157,10 @@ Checklist detallado, con cada ítem del enunciado marcado: **`PLAN.md`**.
   explícita. Ver `fact_rentabilidad_cliente.sql`.
 - **`kpi_cartera_diaria` es un modelo incremental** (snapshot diario acumulativo, patrón
   Kimball), no una tabla que se sobreescribe — coherente con que sea un KPI "diario".
-- **`prod.tfvars` no se aplicó contra un proyecto real** — el free trial cubre un solo
-  proyecto activo; queda documentado como ejercicio de soporte de 2 entornos.
+- **No apliqué `prod.tfvars` contra un proyecto real** — el free trial solo cubre un
+  proyecto activo; lo dejo documentado como ejercicio de soporte de 2 entornos.
 
 ## Notas de gobierno del repositorio
 
-- `docs/BITACORA-TECNICA-PERSONAL.md` existe solo en el disco local del candidato
-  (excluido vía `.gitignore`) — notas de depuración de uso personal, no es parte de la
-  entrega.
 - Ningún `.tfstate` ni `.env` fue commiteado en ningún punto del historial (verificado con
   `git log --all`).

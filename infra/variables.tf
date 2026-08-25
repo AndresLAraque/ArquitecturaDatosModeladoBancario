@@ -37,7 +37,12 @@ variable "cloud_sql_authorized_networks" {
 }
 
 variable "alert_notification_email" {
-  description = "Correo al que se envían las alertas operacionales del pipeline (fallo, reporte diario, anomalía de volumen — Fase 4/5). Se usa para crear el canal de notificación de Cloud Monitoring."
+  description = "Correo al que se envían las alertas operacionales del pipeline (fallo, reporte diario, anomalía de volumen — Fase 4/5). Se usa para crear el canal de notificación de Cloud Monitoring. Valor personal: se pasa en environments/local.tfvars (no versionado), no en dev.tfvars/prod.tfvars."
+  type        = string
+}
+
+variable "impersonator_email" {
+  description = "Cuenta de Google real a la que se le permite impersonar los 3 roles de gobierno (Fase 5), solo para poder demostrar el control de acceso (docs/evidencia/fase5/) — no es parte del modelo de permisos del pipeline en sí. Valor personal: se pasa en environments/local.tfvars (no versionado), no en dev.tfvars/prod.tfvars."
   type        = string
 }
 

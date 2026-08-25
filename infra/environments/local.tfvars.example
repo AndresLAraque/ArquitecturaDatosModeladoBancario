@@ -1,0 +1,13 @@
+# Copia este archivo a "local.tfvars" (mismo directorio) y completa tus
+# propios valores. local.tfvars NO se versiona (ver .gitignore) — cada
+# persona que despliegue este repo pone aquí sus datos personales, en vez
+# de que queden fijos en dev.tfvars/prod.tfvars.
+
+# Correo al que llegan las 3 alertas operacionales (fallo, reporte diario,
+# anomalía de volumen). Debe ser un correo real: Cloud Monitoring envía un
+# mensaje de verificación al crear el canal de notificación.
+alert_notification_email = "tu-correo@ejemplo.com"
+
+# Cuenta de Google (la tuya) a la que se le permite impersonar los 3 roles
+# de gobierno de Fase 5, solo para poder demostrar el control de acceso.
+impersonator_email = "tu-correo@ejemplo.com"

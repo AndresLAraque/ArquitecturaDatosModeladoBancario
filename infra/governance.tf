@@ -124,10 +124,10 @@ resource "google_project_iam_audit_config" "bigquery_data_access" {
   }
 }
 
-# --- Permitir impersonar los 3 roles desde la cuenta humana real del
-# candidato, únicamente para poder DEMOSTRAR el control de acceso
-# (docs/evidencia/fase5/) — no es parte del modelo de permisos del
-# pipeline en sí. -----------------------------------------------------
+# --- Permitir impersonar los 3 roles desde una cuenta humana real
+# (var.impersonator_email), únicamente para poder DEMOSTRAR el control
+# de acceso (docs/evidencia/fase5/) — no es parte del modelo de permisos
+# del pipeline en sí. ---------------------------------------------------
 locals {
   demo_roles = {
     ingeniero_datos = google_service_account.role_ingeniero_datos.name
@@ -140,5 +140,5 @@ resource "google_service_account_iam_member" "candidate_can_impersonate" {
   for_each           = local.demo_roles
   service_account_id = each.value
   role               = "roles/iam.serviceAccountTokenCreator"
-  member             = "user:andresypm@gmail.com"
+  member             = "user:${var.impersonator_email}"
 }

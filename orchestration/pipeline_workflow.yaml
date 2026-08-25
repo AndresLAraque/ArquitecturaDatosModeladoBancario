@@ -61,6 +61,10 @@ main:
                 projectId: ${project_id}
                 body:
                     useLegacySql: false
+                    timeoutMs: 30000 # jobs.query devuelve jobComplete:false y sin
+                    # "rows" si la consulta no termina dentro del timeout (10s por
+                    # defecto) — se amplía para que este COUNT trivial siempre
+                    # complete de forma síncrona.
                     query: |
                         SELECT
                           (SELECT COUNT(*) FROM `finbank_silver_dev.stg_movimientos`) AS silver_movimientos,

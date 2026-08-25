@@ -1,0 +1,32 @@
+[
+  {
+    "insertId": "1ipl6auf62xlq8",
+    "jsonPayload": {
+      "dag_name": "finbank-pipeline-dev",
+      "duration_seconds": 542.2777483463287,
+      "event_type": "PIPELINE_SUCCESS_SUMMARY",
+      "quality_alerts_count": 2998,
+      "records_by_layer": {
+        "gold_fact_cartera": 29880,
+        "gold_fact_transacciones": 497256,
+        "silver_movimientos": 497256
+      }
+    },
+    "labels": {
+      "execution_id": "08942c24-f282-419e-90d9-168d0a75574f",
+      "revision_id": "000004-dec"
+    },
+    "logName": "projects/finbank-data-platform-dev/logs/Workflows",
+    "receiveTimestamp": "2026-08-25T21:34:18.746939153Z",
+    "resource": {
+      "labels": {
+        "location": "us-central1",
+        "resource_container": "795239331474",
+        "workflow_id": "finbank-pipeline-dev"
+      },
+      "type": "workflows.googleapis.com/Workflow"
+    },
+    "severity": "WARNING",
+    "timestamp": "2026-08-25T21:34:18.746939153Z"
+  }
+]

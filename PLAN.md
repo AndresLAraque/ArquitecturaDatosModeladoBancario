@@ -8,15 +8,12 @@ Decisiones cerradas: **Plataforma = GCP (free trial)** · **Sector = Escenario A
 
 ## Fase 0 — Prerrequisitos (antes de escribir código)
 
-### Cuenta y proyecto GCP (lo hace el usuario)
-- [x] Crear/usar cuenta Google, activar **free trial** ($300 USD / 90 días) en https://console.cloud.google.com
-- [x] Crear proyecto GCP dedicado: **`finbank-data-platform-dev`** (región `us-central1`)
-- [x] Billing Account del trial (`01F9B4-329843-7DE70D`) vinculada y `billingEnabled: true`
-      — nota: la cuenta se llama genéricamente "Mi cuenta de facturación" (COP), no
-      "...Trial..."; hay una cuenta vieja `0187EC-7D6577-03A296` (USD) de un trial anterior
-      que quedó `open: false` — esa no se usa, no confundir
-- [ ] **Fijar un presupuesto y alerta de billing** (Billing → Budgets & alerts) en, p.ej., $50/$100/$200 — red de seguridad para no drenar el crédito sin darte cuenta
-      (pendiente real — no se configuró; el trial nunca se acercó al límite durante la prueba)
+### Cuenta y proyecto GCP
+- [x] Creé/usé mi cuenta Google y activé el **free trial** ($300 USD / 90 días) en https://console.cloud.google.com
+- [x] Creé el proyecto GCP dedicado: **`finbank-data-platform-dev`** (región `us-central1`)
+- [x] Vinculé la billing account del trial (`01F9B4-329843-7DE70D`), `billingEnabled: true`
+- [ ] **Fijar un presupuesto y alerta de billing** (Billing → Budgets & alerts) en, p.ej., $50/$100/$200 — red de seguridad para no drenar el crédito sin darme cuenta
+      (pendiente real — no lo configuré; el trial nunca se acercó al límite durante la prueba)
 - [x] Habilitar las APIs necesarias — vía Terraform (`google_project_service` en
       `infra/apis.tf`, no manualmente) en Fase 2: Cloud Storage, BigQuery, Cloud SQL Admin,
       Cloud Workflows, Cloud Scheduler, Cloud Run, Secret Manager, Cloud Logging/Monitoring,
@@ -43,7 +40,7 @@ Decisiones cerradas: **Plataforma = GCP (free trial)** · **Sector = Escenario A
 
 ---
 
-## Fase 1 — Generación de datos y modelo relacional ✅ COMPLETADA (2026-08-24)
+## Fase 1 — Generación de datos y modelo relacional COMPLETADA (2026-08-24)
 
 **Carpeta:** `/data-generation`
 
@@ -67,8 +64,8 @@ Decisiones cerradas: **Plataforma = GCP (free trial)** · **Sector = Escenario A
       cargada: 1.500 duplicados exactos, 1.063 fechas fuera de rango, 872 FK huérfanas,
       1.063 campos inconsistentes (vr_mov negativo / sdo_capital > vr_aprobado)
 - [x] Salida en 3 formatos (CSV + JSON + Parquet) — heterogeneidad de ingesta real
-- [x] Postgres local en Docker (`docker-compose.yml`, puerto 5434 — el 5432 estaba ocupado
-      por otros proyectos locales del usuario)
+- [x] Postgres local en Docker (`docker-compose.yml`, puerto 5434 — el 5432 lo tenía
+      ocupado con otros proyectos míos)
 - [x] Script de carga (`load_to_postgres.py`, SQLAlchemy) parametrizado por variables de
       entorno — mismo código sirve para Postgres local o Cloud SQL
 - [x] Diagrama ER en `/docs/er-diagram.md` (Mermaid, se renderiza nativo en GitHub)
@@ -79,7 +76,7 @@ Decisiones cerradas: **Plataforma = GCP (free trial)** · **Sector = Escenario A
 
 ## Fase 2 — Infraestructura como código (Terraform)
 
-**Carpeta:** `/infra` — ✅ COMPLETADA (2026-08-24), 44 recursos aplicados en `dev`
+**Carpeta:** `/infra` — COMPLETADA (2026-08-24), 44 recursos aplicados en `dev`
 
 - [x] Backend remoto: `gs://finbank-data-platform-dev-tfstate` (bootstrap con `gcloud storage
       buckets create`, versionado activo, fuera de Terraform)
@@ -106,11 +103,11 @@ Decisiones cerradas: **Plataforma = GCP (free trial)** · **Sector = Escenario A
 
 ---
 
-## Fase 3 — Pipeline Medallion ✅ COMPLETADA (2026-08-25)
+## Fase 3 — Pipeline Medallion COMPLETADA (2026-08-25)
 
 **Carpeta:** `/pipelines`
 
-### Bronze (`/pipelines/bronze`) ✅ COMPLETADA (2026-08-24)
+### Bronze (`/pipelines/bronze`) COMPLETADA (2026-08-24)
 - [x] Extracción Cloud SQL → GCS en Parquet, sin transformar esquema
 - [x] 3 columnas de auditoría: `ingestion_ts`, `source_system`, `batch_id`
 - [x] Particionado `year/month/day` por fecha de ingesta
@@ -119,7 +116,7 @@ Decisiones cerradas: **Plataforma = GCP (free trial)** · **Sector = Escenario A
       corridas reales: la 2ª detecta 0 filas nuevas en las tablas incrementales. Evidencia en
       `docs/evidencia/fase3-bronze/`
 
-### Silver (`/pipelines/silver` + `/pipelines/dbt_finbank` — BigQuery + dbt) ✅ COMPLETADA (2026-08-25)
+### Silver (`/pipelines/silver` + `/pipelines/dbt_finbank` — BigQuery + dbt) COMPLETADA (2026-08-25)
 - [x] Puente Bronze (GCS Parquet) -> BigQuery (`raw_*`) vía `load_bronze_to_bq.py`, por modo
       (full = último batch, incremental = todos los batches acumulados)
 - [x] Dedup de exactos (por columnas de negocio, no de auditoría) + exclusión de campos
@@ -140,7 +137,7 @@ Decisiones cerradas: **Plataforma = GCP (free trial)** · **Sector = Escenario A
 - [x] 21 pruebas automatizadas de calidad (19 genéricas dbt + 2 singulares), 21/21 en verde —
       excede el mínimo de 5. Evidencia completa en `docs/evidencia/fase3-silver/`
 
-### Gold (`/pipelines/dbt_finbank/models/marts` — dbt marts) ✅ COMPLETADA (2026-08-25)
+### Gold (`/pipelines/dbt_finbank/models/marts` — dbt marts) COMPLETADA (2026-08-25)
 - [x] `dim_clientes` — nombre completo (hash), edad calculada, segmento con etiqueta legible
 - [x] `dim_productos` — nombres de negocio, tasa mensual equivalente (verificada matemáticamente),
       familia (crédito/ahorro/transaccional)
@@ -168,7 +165,7 @@ Decisiones cerradas: **Plataforma = GCP (free trial)** · **Sector = Escenario A
 
 ---
 
-## Fase 4 — Orquestación ✅ COMPLETADA (2026-08-25)
+## Fase 4 — Orquestación COMPLETADA (2026-08-25)
 
 **Carpeta:** `/orchestration` + `/pipelines/bronze,transform` (contenedores) + `infra/cloud_run.tf`,
 `infra/monitoring.tf`
@@ -200,7 +197,7 @@ Decisiones cerradas: **Plataforma = GCP (free trial)** · **Sector = Escenario A
 
 ---
 
-## Fase 5 — Gobierno, seguridad y calidad ✅ COMPLETADA (2026-08-25)
+## Fase 5 — Gobierno, seguridad y calidad COMPLETADA (2026-08-25)
 
 - [x] 3 roles IAM reales (`infra/governance.tf`), cada uno su propia service account
       impersonable para poder DEMOSTRAR el control de acceso, no solo declararlo:
@@ -223,26 +220,25 @@ Decisiones cerradas: **Plataforma = GCP (free trial)** · **Sector = Escenario A
 - [x] Linaje de 10 campos (Fase 3, `docs/linaje.md`)
 - [x] `CHANGELOG.md` actualizado en cada hito desde el commit inicial
 
-### 🐛 Bug real encontrado y corregido en esta fase (no en la que se originó)
+### Bug real encontrado y corregido en esta fase (no en la que se originó)
 
 Al probar el acceso del rol Analista a Gold, la consulta devolvía
-`Table ... was not found` incluso para el dueño del proyecto. Investigando:
-`finbank_gold_dev` estaba **vacío** — todos los modelos de Gold (`dim_*`,
-`fact_*`, `kpi_*`) llevaban desde Fase 3 materializándose dentro de
+`Table ... was not found` incluso para el dueño del proyecto. Investigando,
+encontré que `finbank_gold_dev` estaba **vacío** — todos los modelos de Gold
+(`dim_*`, `fact_*`, `kpi_*`) llevaban desde Fase 3 materializándose dentro de
 `finbank_silver_dev` por un bug en `generate_schema_name.sql` (siempre
 devolvía `target.schema`, ignorando el `+schema` de la carpeta `marts`).
-Corregido: macro reescrito al patrón estándar de dbt + `+schema:
-finbank_gold_dev` explícito en `dbt_project.yml`. Se: (1) reconstruyeron
-los 8 marts en el dataset correcto, (2) se borraron las 8 copias huérfanas
-en Silver, (3) se corrigió la query de reporte del Workflow
+Lo corregí así: reescribí el macro al patrón estándar de dbt, agregué
+`+schema: finbank_gold_dev` explícito en `dbt_project.yml`, (1) reconstruí
+los 8 marts en el dataset correcto, (2) borré las 8 copias huérfanas en
+Silver, (3) corregí la query de reporte del Workflow
 (`orchestration/pipeline_workflow.yaml`, apuntaba a
-`finbank_silver_dev.fact_*`), (4) se agregó permiso de lectura del
-orquestador sobre Gold, (5) se reconstruyó y republicó la imagen Docker
-`transform` (el bug estaba empaquetado en la imagen ya desplegada), (6) se
-forzó el redespliegue de los Cloud Run Jobs de silver/gold, y (7) se corrió
+`finbank_silver_dev.fact_*`), (4) agregué el permiso de lectura del
+orquestador sobre Gold, (5) reconstruí y republiqué la imagen Docker
+`transform` (el bug estaba empaquetado en la imagen ya desplegada), (6)
+forcé el redespliegue de los Cloud Run Jobs de silver/gold, y (7) corrí
 el pipeline completo una vez más de punta a punta para confirmar — 464s,
 `SUCCEEDED`, reporte final con los conteos correctos de `finbank_gold_dev`.
-Detalle completo en la bitácora personal.
 
 ---
 
@@ -253,4 +249,3 @@ Detalle completo en la bitácora personal.
 - [x] Todos los entregables de las 5 fases presentes en sus carpetas
 - [x] Revisión final: verificado con `git log --all` que nunca se commiteó ningún `.tfstate`
       ni `.env`, y `git grep` no encontró credenciales hardcodeadas en `.tf`/`.py`/`.yml`
-- [ ] Compartir el repositorio con el evaluador (acción del candidato, fuera del alcance de esta sesión)

@@ -1,0 +1,18 @@
+argument: 'null'
+createTime: '2026-08-25T21:25:16.287222126Z'
+duration: 542.609256388s
+endTime: '2026-08-25T21:34:18.896478514Z'
+labels:
+  ambiente: dev
+  goog-terraform-provisioned: 'true'
+  proyecto: finbank-data-platform
+  prueba: dataknow-tecnica
+name: projects/795239331474/locations/us-central1/workflows/finbank-pipeline-dev/executions/08942c24-f282-419e-90d9-168d0a75574f
+result: '"FinBank pipeline completado exitosamente"'
+startTime: '2026-08-25T21:25:16.287222126Z'
+state: SUCCEEDED
+status:
+  currentSteps:
+  - routine: main
+    step: return_result
+workflowRevisionId: 000004-dec

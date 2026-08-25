@@ -14,7 +14,9 @@ cloud_sql_tier  = "db-custom-2-7680" # 2 vCPU / 7.5GB, dimensionado para carga r
 
 cloud_sql_authorized_networks = []
 
-alert_notification_email = "andresypm@gmail.com"
+# alert_notification_email e impersonator_email son datos personales del
+# operador: se pasan aparte, vía environments/local.tfvars (no versionado,
+# ver local.tfvars.example) en vez de quedar fijos aquí.
 
 labels = {
   proyecto = "finbank-data-platform"

@@ -85,11 +85,16 @@ Si cambias de proyecto, actualiza también el nombre del bucket en `backend.tf`.
 
 ### 1. Init, plan, apply
 
+`alert_notification_email` e `impersonator_email` son datos personales del
+operador (no del proyecto), así que viven aparte en `environments/local.tfvars`
+(no versionado). Cópialo desde la plantilla la primera vez:
+
 ```bash
 cd infra
+cp environments/local.tfvars.example environments/local.tfvars   # completar con tu correo
 terraform init
-terraform plan  -var-file=environments/dev.tfvars
-terraform apply -var-file=environments/dev.tfvars
+terraform plan  -var-file=environments/dev.tfvars -var-file=environments/local.tfvars
+terraform apply -var-file=environments/dev.tfvars -var-file=environments/local.tfvars
 ```
 
 ### 2. Verificar

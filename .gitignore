@@ -4,7 +4,10 @@
 *.tfstate.*
 *.tfvars
 !*.tfvars.example
-!infra/environments/*.tfvars
+# Solo estos dos quedan versionados (no llevan datos personales); todo lo
+# demás en infra/environments/ (p. ej. local.tfvars) sigue ignorado.
+!infra/environments/dev.tfvars
+!infra/environments/prod.tfvars
 tfplan*
 *.tfplan
 crash.log
