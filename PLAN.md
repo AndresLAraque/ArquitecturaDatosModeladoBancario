@@ -137,7 +137,7 @@ Decisiones cerradas: **Plataforma = GCP (free trial)** · **Sector = Escenario A
 - [x] Reporte de calidad `dq_report_silver`: % nulos por columna, rechazados, % conformes —
       99.45%-100% de conformidad por tabla
 - [x] Tablas BigQuery nativas (materialización `table` de dbt)
-- [x] 21 pruebas automatizadas de calidad (17 genéricas dbt + 2 singulares), 21/21 en verde —
+- [x] 21 pruebas automatizadas de calidad (19 genéricas dbt + 2 singulares), 21/21 en verde —
       excede el mínimo de 5. Evidencia completa en `docs/evidencia/fase3-silver/`
 
 ### Gold (`/pipelines/dbt_finbank/models/marts` — dbt marts) ✅ COMPLETADA (2026-08-25)

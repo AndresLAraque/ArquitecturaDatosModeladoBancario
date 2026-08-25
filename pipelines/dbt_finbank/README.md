@@ -80,10 +80,12 @@ futuro para bajar falsos positivos. Detalle completo en
 
 ## Pruebas de calidad (>= 5 requeridas)
 
-`_staging.yml` declara 17 tests genéricos de dbt (`not_null`, `unique`,
+`_staging.yml` declara 19 tests genéricos de dbt (`not_null`, `unique`,
 `accepted_values`, `relationships`) + 2 tests singulares en `tests/`
-(`vr_mov` siempre positivo, `dias_mora_act` nunca negativo) — 19 en total.
-Resultado de la corrida real en `/docs/evidencia/fase3-silver/dbt_test_output.txt`.
+(`vr_mov` siempre positivo, `dias_mora_act` nunca negativo) — **21 en
+total**, 21/21 en verde (`Done. PASS=21 WARN=0 ERROR=0 SKIP=0 TOTAL=21`).
+Resultado de la corrida real en
+`/docs/evidencia/fase3-silver/dbt_run_and_test_output.txt`.
 
 ## Enmascaramiento de PII
 
