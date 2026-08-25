@@ -1,0 +1,18 @@
+=== fact_cartera: distribución por calif_regulatoria (evidencia real, 2026-08-25) ===
+A (Al día):    22409 oblig, saldo=41,672,273,000 COP, provisión=416,722,730 (1%)
+B (Rango 1):    4029 oblig, saldo=7,183,539,000 COP,  provisión=229,873,248 (3.2%)
+C (Rango 2):    1767 oblig, saldo=3,305,832,000 COP,  provisión=330,583,200 (10%)
+D (Rango 3):     871 oblig, saldo=2,552,392,000 COP,  provisión=510,478,400 (20%)
+E (Deteriorado): 804 oblig, saldo=2,145,273,000 COP,  provisión=2,145,273,000 (100%)
+
+=== fact_rentabilidad_cliente: CLTV más alto ===
+CLI003829 / 2026-07: ingreso_total=571,200 COP, cltv_12m=5,888,500 COP
+
+=== dim_productos: verificación tasa mensual equivalente ===
+PRD001: tasa_ea=28.84% -> tasa_mensual=2.1341%
+Verificación manual: (1.2884)^(1/12) - 1 = 0.021341 = 2.1341% ✓ correcto
+
+=== fact_transacciones: horario hábil / USD ===
+horario_habil=True:  296,252 (59.6%)
+horario_habil=False: 201,004 (40.4%)
+Ejemplo conversión: vr_mov=842,700 COP -> vr_mov_usd=208.07 (842700/4050=208.07 ✓)

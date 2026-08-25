@@ -49,3 +49,11 @@ Todas las entradas siguen el formato: `YYYY-MM-DD — autor — descripción`.
   función de ventana por una columna FLOAT64, y RANGE con offset numérico exige ORDER BY
   numérico (se usa `unix_date()`, no DATE directo). Resultado real: 8/8 modelos, 21/21 tests en
   verde. Evidencia en `docs/evidencia/fase3-silver/`.
+- 2026-08-25 — andresypm@gmail.com — Capa Gold (`/pipelines/dbt_finbank/models/marts`): 8
+  modelos — `dim_clientes`, `dim_productos`, `dim_geografia`, `dim_canal` (dimensiones curadas
+  que concilian código vs nombre de ciudad y punto físico vs canal digital), `fact_transacciones`
+  (USD, horario hábil), `fact_cartera` (bucket_mora, calificación regulatoria A-E, provisión
+  estimada), `fact_rentabilidad_cliente` (CLTV rolling 12 meses), `kpi_cartera_diaria`
+  (materialización incremental, snapshot diario tipo Kimball). Linaje de 10 campos calculados
+  en `/docs/linaje.md`. 43/43 pruebas dbt en verde (Silver + Gold). Evidencia con verificación
+  matemática de negocio en `docs/evidencia/fase3-gold/`. **Fase 3 completa.**

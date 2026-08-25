@@ -1,0 +1,96 @@
+version: 2
+
+models:
+  - name: dim_clientes
+    description: "Dimensión de clientes: nombre unificado (hash), edad calculada, segmento con etiqueta legible."
+    columns:
+      - name: id_cli
+        tests: [not_null, unique]
+      - name: segmento_desc
+        tests:
+          - accepted_values:
+              values: ['Básico', 'Estándar', 'Premium', 'Elite', 'Sin clasificar']
+
+  - name: dim_productos
+    description: "Dimensión de productos: nombres de negocio, tasa mensual equivalente, familia."
+    columns:
+      - name: cod_prod
+        tests: [not_null, unique]
+      - name: familia_producto
+        tests:
+          - accepted_values:
+              values: ['CREDITO', 'AHORRO', 'TRANSACCIONAL']
+
+  - name: dim_geografia
+    description: "Dimensión geográfica curada (cod_ciudad <-> ciudad/depto/país)."
+    columns:
+      - name: cod_ciudad
+        tests: [not_null, unique]
+
+  - name: dim_canal
+    description: "Dimensión de canal, unifica tipo de punto físico y canal digital."
+    columns:
+      - name: cod_canal
+        tests: [not_null, unique]
+      - name: tipo_canal
+        tests:
+          - accepted_values:
+              values: ['FISICO', 'DIGITAL']
+
+  - name: fact_transacciones
+    description: "Hechos de transacciones: monto en USD, horario hábil, ind_sospechoso (heredado de Silver)."
+    columns:
+      - name: id_mov
+        tests: [not_null]
+      - name: id_cli
+        tests:
+          - relationships:
+              to: ref('dim_clientes')
+              field: id_cli
+      - name: cod_prod
+        tests:
+          - relationships:
+              to: ref('dim_productos')
+              field: cod_prod
+      - name: cod_canal
+        tests:
+          - relationships:
+              to: ref('dim_canal')
+              field: cod_canal
+
+  - name: fact_cartera
+    description: "Hechos de cartera: bucket_mora, clasificación regulatoria, provisión estimada."
+    columns:
+      - name: id_oblig
+        tests: [not_null, unique]
+      - name: id_cli
+        tests:
+          - relationships:
+              to: ref('dim_clientes')
+              field: id_cli
+      - name: bucket_mora
+        tests:
+          - accepted_values:
+              values: ['Al día', 'Rango 1', 'Rango 2', 'Rango 3', 'Deteriorado']
+      - name: calif_regulatoria
+        tests:
+          - accepted_values:
+              values: ['A', 'B', 'C', 'D', 'E']
+
+  - name: fact_rentabilidad_cliente
+    description: "Hechos de rentabilidad mensual por cliente: intereses + comisiones, CLTV 12 meses."
+    columns:
+      - name: id_cli
+        tests:
+          - relationships:
+              to: ref('dim_clientes')
+              field: id_cli
+
+  - name: kpi_cartera_diaria
+    description: "KPIs ejecutivos de cartera, snapshot diario incremental por producto/segmento/ciudad."
+    columns:
+      - name: cod_prod
+        tests:
+          - relationships:
+              to: ref('dim_productos')
+              field: cod_prod

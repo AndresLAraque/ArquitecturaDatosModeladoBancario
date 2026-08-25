@@ -102,7 +102,7 @@ Decisiones cerradas: **Plataforma = GCP (free trial)** · **Sector = Escenario A
 
 ---
 
-## Fase 3 — Pipeline Medallion
+## Fase 3 — Pipeline Medallion ✅ COMPLETADA (2026-08-25)
 
 **Carpeta:** `/pipelines`
 
@@ -136,18 +136,27 @@ Decisiones cerradas: **Plataforma = GCP (free trial)** · **Sector = Escenario A
 - [x] 21 pruebas automatizadas de calidad (17 genéricas dbt + 2 singulares), 21/21 en verde —
       excede el mínimo de 5. Evidencia completa en `docs/evidencia/fase3-silver/`
 
-### Gold (`/pipelines/gold` — dbt marts)
-- [ ] `dim_clientes` — nombre completo, edad calculada, segmento con etiqueta legible
-- [ ] `dim_productos` — nombres de negocio, tasa mensual equivalente, familia (crédito/ahorro/transaccional)
-- [ ] `dim_geografia`, `dim_canal` — separados desde `TB_SUCURSALES_RED`
-- [ ] `fact_transacciones` — FK validada, monto en USD, flag horario hábil/no hábil, prom. móvil 30d
-- [ ] `fact_cartera` — `bucket_mora` (5 rangos), clasificación regulatoria A/B/C/D/E, provisión estimada
-- [ ] `fact_rentabilidad_cliente` — ingreso total, CLTV 12 meses (join comisiones + movimientos)
-- [ ] `kpi_cartera_diaria` — agregado por fecha/producto/segmento/ciudad (obligaciones activas,
-      monto cartera, monto mora, tasa mora %, clientes en mora)
-- [ ] Particionamiento Gold por fecha; clustering por segmento/ciudad donde aplique
-- [ ] Documentar linaje de 3+ campos calculados (origen, transformación, propósito) — dbt docs
-      o `docs/linaje.md`
+### Gold (`/pipelines/dbt_finbank/models/marts` — dbt marts) ✅ COMPLETADA (2026-08-25)
+- [x] `dim_clientes` — nombre completo (hash), edad calculada, segmento con etiqueta legible
+- [x] `dim_productos` — nombres de negocio, tasa mensual equivalente (verificada matemáticamente),
+      familia (crédito/ahorro/transaccional)
+- [x] `dim_geografia`, `dim_canal` — dimensiones curadas que concilian código vs nombre de ciudad
+      y tipo de punto físico vs canal digital (inconsistencia real entre TB_SUCURSALES_RED y
+      TB_MOV_FINANCIEROS, documentada en el propio modelo)
+- [x] `fact_transacciones` — FK validada (heredada de Silver), monto en USD, flag horario
+      hábil/no hábil, `ind_sospechoso`/prom. móvil 30d propagados desde Silver
+- [x] `fact_cartera` — `bucket_mora` (5 rangos), clasificación regulatoria A/B/C/D/E, provisión
+      estimada (tabla simplificada tipo SFC, supuesto documentado en el modelo)
+- [x] `fact_rentabilidad_cliente` — ingreso total (intereses aproximados + comisiones), CLTV
+      rolling 12 meses por cliente
+- [x] `kpi_cartera_diaria` — **materialización incremental** (snapshot diario tipo Kimball, no
+      tabla completa) por fecha/producto/segmento/ciudad
+- [x] Particionamiento por fecha (`fec_mov`, `fec_desembolso`, `fecha_corte`) + clustering por
+      producto/canal/calificación regulatoria en los 3 modelos que más lo necesitan
+- [x] Linaje de 10 campos calculados documentado en `/docs/linaje.md` (origen, transformación,
+      propósito) — excede el mínimo de 3
+- [x] 22 pruebas dbt adicionales sobre los marts (43 en total con Silver), 43/43 en verde.
+      Evidencia real (conteos, sumas, verificación matemática) en `docs/evidencia/fase3-gold/`
 - [x] Tabla de errores del pipeline con registros de prueba — ya satisfecho por
       `err_calidad_datos` (Silver), reutilizable/ampliable en Gold si aparecen nuevas reglas
 - [x] 5+ pruebas de calidad — ya satisfecho por las 21 pruebas de Silver (superávit amplio);

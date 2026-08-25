@@ -19,6 +19,7 @@ select
     cast(tasa_ea as numeric) as tasa_ea,
     plazo_max_meses,
     plazo_max_meses is not null as es_plazo_aplicable,
+    cast(cuota_min as numeric) as cuota_min,
     coalesce(cast(comision_admin as numeric), 0) as comision_admin,
     comision_admin is null as comision_admin_imputada,
     estado_prod,

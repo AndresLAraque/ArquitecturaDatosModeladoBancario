@@ -1,0 +1,51 @@
+[0m04:21:21  Running with dbt=1.8.8
+[0m04:21:30  Registered adapter: bigquery=1.8.3
+[0m04:21:31  Unable to do partial parsing because a project config has changed
+[0m04:21:34  [[33mWARNING[0m]: Deprecated functionality
+The `tests` config has been renamed to `data_tests`. Please see
+https://docs.getdbt.com/docs/build/data-tests#new-data_tests-syntax for more
+information.
+[0m04:21:35  Found 16 models, 43 data tests, 6 sources, 481 macros
+[0m04:21:35  
+[0m04:21:39  Concurrency: 4 threads (target='dev')
+[0m04:21:39  
+[0m04:21:39  1 of 16 START sql table model finbank_silver_dev.dim_canal ..................... [RUN]
+[0m04:21:39  2 of 16 START sql table model finbank_silver_dev.dim_geografia ................. [RUN]
+[0m04:21:39  3 of 16 START sql table model finbank_silver_dev.stg_clientes .................. [RUN]
+[0m04:21:39  4 of 16 START sql table model finbank_silver_dev.stg_productos ................. [RUN]
+[0m04:21:42  2 of 16 OK created sql table model finbank_silver_dev.dim_geografia ............ [[32mCREATE TABLE (14.0 rows, 0 processed)[0m in 3.64s]
+[0m04:21:42  5 of 16 START sql table model finbank_silver_dev.stg_sucursales ................ [RUN]
+[0m04:21:43  1 of 16 OK created sql table model finbank_silver_dev.dim_canal ................ [[32mCREATE TABLE (5.0 rows, 0 processed)[0m in 3.80s]
+[0m04:21:43  4 of 16 OK created sql table model finbank_silver_dev.stg_productos ............ [[32mCREATE TABLE (50.0 rows, 8.0 KiB processed)[0m in 4.30s]
+[0m04:21:43  6 of 16 START sql table model finbank_silver_dev.dim_productos ................. [RUN]
+[0m04:21:43  3 of 16 OK created sql table model finbank_silver_dev.stg_clientes ............. [[32mCREATE TABLE (10.0k rows, 1.8 MiB processed)[0m in 4.48s]
+[0m04:21:43  7 of 16 START sql table model finbank_silver_dev.dim_clientes .................. [RUN]
+[0m04:21:43  8 of 16 START sql table model finbank_silver_dev.err_calidad_datos ............. [RUN]
+[0m04:21:46  5 of 16 OK created sql table model finbank_silver_dev.stg_sucursales ........... [[32mCREATE TABLE (200.0 rows, 32.7 KiB processed)[0m in 3.98s]
+[0m04:21:46  9 of 16 START sql table model finbank_silver_dev.stg_comisiones ................ [RUN]
+[0m04:21:46  6 of 16 OK created sql table model finbank_silver_dev.dim_productos ............ [[32mCREATE TABLE (50.0 rows, 9.2 KiB processed)[0m in 3.34s]
+[0m04:21:46  10 of 16 START sql table model finbank_silver_dev.stg_movimientos .............. [RUN]
+[0m04:21:47  7 of 16 OK created sql table model finbank_silver_dev.dim_clientes ............. [[32mCREATE TABLE (10.0k rows, 3.5 MiB processed)[0m in 3.79s]
+[0m04:21:47  11 of 16 START sql table model finbank_silver_dev.stg_obligaciones ............. [RUN]
+[0m04:21:49  8 of 16 OK created sql table model finbank_silver_dev.err_calidad_datos ........ [[32mCREATE TABLE (3.0k rows, 26.9 MiB processed)[0m in 5.64s]
+[0m04:21:49  12 of 16 START sql table model finbank_silver_dev.dq_report_silver ............. [RUN]
+[0m04:21:51  9 of 16 OK created sql table model finbank_silver_dev.stg_comisiones ........... [[32mCREATE TABLE (79.9k rows, 11.4 MiB processed)[0m in 4.47s]
+[0m04:21:52  11 of 16 OK created sql table model finbank_silver_dev.stg_obligaciones ........ [[32mCREATE TABLE (29.9k rows, 5.4 MiB processed)[0m in 4.71s]
+[0m04:21:52  13 of 16 START sql table model finbank_silver_dev.fact_cartera ................. [RUN]
+[0m04:21:53  12 of 16 OK created sql table model finbank_silver_dev.dq_report_silver ........ [[32mCREATE TABLE (27.0 rows, 11.0 MiB processed)[0m in 3.86s]
+[0m04:21:53  10 of 16 OK created sql table model finbank_silver_dev.stg_movimientos ......... [[32mCREATE TABLE (497.3k rows, 97.0 MiB processed)[0m in 6.52s]
+[0m04:21:53  14 of 16 START sql table model finbank_silver_dev.fact_rentabilidad_cliente .... [RUN]
+[0m04:21:53  15 of 16 START sql table model finbank_silver_dev.fact_transacciones ........... [RUN]
+[0m04:21:59  14 of 16 OK created sql table model finbank_silver_dev.fact_rentabilidad_cliente  [[32mCREATE TABLE (68.8k rows, 26.5 MiB processed)[0m in 6.06s]
+[0m04:22:03  15 of 16 OK created sql table model finbank_silver_dev.fact_transacciones ...... [[32mCREATE TABLE (497.3k rows, 95.5 MiB processed)[0m in 10.35s]
+[0m04:22:32  13 of 16 OK created sql table model finbank_silver_dev.fact_cartera ............ [[32mCREATE TABLE (29.9k rows, 5.3 MiB processed)[0m in 40.64s]
+[0m04:22:32  16 of 16 START sql incremental model finbank_silver_dev.kpi_cartera_diaria ..... [RUN]
+[0m04:22:40  16 of 16 OK created sql incremental model finbank_silver_dev.kpi_cartera_diaria  [[32mCREATE TABLE (1.3k rows, 1.6 MiB processed)[0m in 7.74s]
+[0m04:22:40  
+[0m04:22:40  Finished running 15 table models, 1 incremental model in 0 hours 1 minutes and 5.11 seconds (65.11s).
+[0m04:22:40  
+[0m04:22:40  [32mCompleted successfully[0m
+[0m04:22:40  
+[0m04:22:40  Done. PASS=16 WARN=0 ERROR=0 SKIP=0 TOTAL=16
+
+[exited with code 0]
