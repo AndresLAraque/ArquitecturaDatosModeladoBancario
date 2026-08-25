@@ -7,3 +7,9 @@ Historial de ejecuciones reales del Workflow finbank-pipeline-dev
 
 Dashboard accesible sin tocar código fuente:
 https://console.cloud.google.com/workflows/workflow/us-central1/finbank-pipeline-dev/executions?project=finbank-data-platform-dev
+
+--- CONFIRMACIÓN DEL USUARIO (2026-08-25) ---
+Los 2 correos de alerta llegaron correctamente a la bandeja de
+andresypm@gmail.com (canal de notificación de Cloud Monitoring
+verificado end-to-end, no solo la configuración). Confirmado por el
+usuario en la sesión de trabajo.

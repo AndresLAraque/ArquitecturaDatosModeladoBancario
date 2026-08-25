@@ -196,26 +196,57 @@ Decisiones cerradas: **Plataforma = GCP (free trial)** · **Sector = Escenario A
 
 ---
 
-## Fase 5 — Gobierno, seguridad y calidad
+## Fase 5 — Gobierno, seguridad y calidad ✅ COMPLETADA (2026-08-25)
 
-- [ ] 3 roles IAM: `data-engineer` (RW todas las capas), `analyst` (solo lectura en dataset Gold),
-      `admin` (control total del proyecto) — vía Terraform (`google_project_iam_member` /
-      roles custom)
-- [ ] Principio de mínimo privilegio en cada Service Account del pipeline
-- [ ] Cloud Audit Logs (Data Access) habilitados sobre BigQuery/GCS
-- [ ] Evidencia de acceso denegado: analyst intentando leer bucket `bronze`/`silver` → 403
-- [ ] Catálogo de datos `/docs/catalogo-datos.md`: tabla, campo, tipo, origen, ¿PII? (Silver + Gold)
-- [ ] Enmascaramiento vigente desde Silver en adelante (ya cubierto en Fase 3)
-- [ ] Evidencia de las 3 alertas: fallo, reporte diario, anomalía de volumen (>30% vs promedio
-      últimas 7 ejecuciones)
-- [ ] Linaje de 3+ campos (ya cubierto en Fase 3, referenciarlo aquí)
-- [ ] `CHANGELOG.md` actualizado en cada hito
+- [x] 3 roles IAM reales (`infra/governance.tf`), cada uno su propia service account
+      impersonable para poder DEMOSTRAR el control de acceso, no solo declararlo:
+  - `role-ingeniero-datos`: RW en bronze/silver/gold (storage.objectAdmin x3 + bigquery.dataEditor x2)
+  - `role-analista`: SOLO `bigquery.dataViewer` en el dataset Gold — cero acceso a bronze/silver
+  - `role-administrador`: `roles/owner` — control total del proyecto
+- [x] Principio de mínimo privilegio ya aplicado desde Fase 2 en las SAs del pipeline
+- [x] Cloud Audit Logs (Data Access, `DATA_READ`+`DATA_WRITE`) habilitados sobre Storage y
+      BigQuery (`google_project_iam_audit_config`)
+- [x] Evidencia de acceso denegado — **real, por impersonación**, no simulada: Analista
+      denegado en bucket bronze, bucket silver y BigQuery silver; permitido en BigQuery gold.
+      Ingeniero de Datos permitido en las 3 capas. Matriz completa en
+      `docs/evidencia/fase5/access-control-matrix.txt`
+- [x] Catálogo de datos `/docs/catalogo-datos.md`: tabla, campo, tipo, origen, ¿sensible? —
+      Silver + Gold completos
+- [x] Enmascaramiento vigente desde Silver en adelante (Fase 3)
+- [x] Evidencia de las 3 alertas — **las 3 con log real verificado**: fallo (Fase 4),
+      reporte diario (Fase 4), anomalía de volumen (probada en Fase 5 manipulando el
+      histórico de comparación a propósito — ver `docs/evidencia/fase5/`)
+- [x] Linaje de 10 campos (Fase 3, `docs/linaje.md`)
+- [x] `CHANGELOG.md` actualizado en cada hito desde el commit inicial
+
+### 🐛 Bug real encontrado y corregido en esta fase (no en la que se originó)
+
+Al probar el acceso del rol Analista a Gold, la consulta devolvía
+`Table ... was not found` incluso para el dueño del proyecto. Investigando:
+`finbank_gold_dev` estaba **vacío** — todos los modelos de Gold (`dim_*`,
+`fact_*`, `kpi_*`) llevaban desde Fase 3 materializándose dentro de
+`finbank_silver_dev` por un bug en `generate_schema_name.sql` (siempre
+devolvía `target.schema`, ignorando el `+schema` de la carpeta `marts`).
+Corregido: macro reescrito al patrón estándar de dbt + `+schema:
+finbank_gold_dev` explícito en `dbt_project.yml`. Se: (1) reconstruyeron
+los 8 marts en el dataset correcto, (2) se borraron las 8 copias huérfanas
+en Silver, (3) se corrigió la query de reporte del Workflow
+(`orchestration/pipeline_workflow.yaml`, apuntaba a
+`finbank_silver_dev.fact_*`), (4) se agregó permiso de lectura del
+orquestador sobre Gold, (5) se reconstruyó y republicó la imagen Docker
+`transform` (el bug estaba empaquetado en la imagen ya desplegada), (6) se
+forzó el redespliegue de los Cloud Run Jobs de silver/gold, y (7) se corrió
+el pipeline completo una vez más de punta a punta para confirmar — 464s,
+`SUCCEEDED`, reporte final con los conteos correctos de `finbank_gold_dev`.
+Detalle completo en la bitácora personal.
 
 ---
 
 ## Entrega final
 
-- [ ] Repo remoto (GitHub/GitLab) creado y compartido con el evaluador
-- [ ] README con sector + plataforma + justificación como **primera sección**
-- [ ] Todos los entregables de cada fase presentes en sus carpetas
-- [ ] Revisión final: sin credenciales en el historial de git, sin `.tfstate` commiteado
+- [x] Repo remoto creado (GitHub) — https://github.com/AndresLAraque/ArquitecturaDatosModeladoBancario
+- [x] README con sector + plataforma + justificación como **primera sección**
+- [x] Todos los entregables de las 5 fases presentes en sus carpetas
+- [ ] Revisión final: sin credenciales en el historial de git, sin `.tfstate` commiteado —
+      pendiente una pasada de verificación explícita antes de compartir con el evaluador
+- [ ] Compartir el repositorio con el evaluador (acción del candidato, fuera del alcance de esta sesión)

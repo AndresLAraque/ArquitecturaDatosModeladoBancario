@@ -1,0 +1,14 @@
+{
+  "insertId": "1umrqxsf4r5tdg",
+  "jsonPayload": {
+    "avg_last_7_runs": 5929.43,
+    "current_rows": 10000,
+    "event_type": "VOLUME_ANOMALY",
+    "pct_diff": 68.65,
+    "table": "TB_CLIENTES_CORE",
+    "timestamp": "2026-08-25T06:14:08.976603+00:00"
+  },
+  "severity": "WARNING",
+  "logName": "projects/finbank-data-platform-dev/logs/finbank-pipeline-alerts",
+  "resource": {"type": "cloud_run_job", "labels": {"job_name": "finbank-bronze-dev"}}
+}

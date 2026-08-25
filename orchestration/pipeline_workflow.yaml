@@ -64,8 +64,8 @@ main:
                     query: |
                         SELECT
                           (SELECT COUNT(*) FROM `finbank_silver_dev.stg_movimientos`) AS silver_movimientos,
-                          (SELECT COUNT(*) FROM `finbank_silver_dev.fact_transacciones`) AS gold_transacciones,
-                          (SELECT COUNT(*) FROM `finbank_silver_dev.fact_cartera`) AS gold_cartera,
+                          (SELECT COUNT(*) FROM `finbank_gold_dev.fact_transacciones`) AS gold_transacciones,
+                          (SELECT COUNT(*) FROM `finbank_gold_dev.fact_cartera`) AS gold_cartera,
                           (SELECT COUNT(*) FROM `finbank_silver_dev.err_calidad_datos`) AS quality_errors
             result: metrics_result
 

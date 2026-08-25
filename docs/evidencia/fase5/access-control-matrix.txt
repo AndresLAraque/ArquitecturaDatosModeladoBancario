@@ -1,0 +1,21 @@
+Matriz de control de acceso — Fase 5 (evidencia real, 2026-08-25)
+Probado por impersonación real de las 3 service accounts de rol
+(infra/governance.tf), no simulado.
+
+PRUEBA                                                   RESULTADO    DETALLE
+------------------------------------------------------------------------------------------------------------------------
+ANALISTA -> listar bucket BRONZE                        DENEGADO     Forbidden: 403 GET .../b/finbank-data-platform-dev-bronze/o...
+ANALISTA -> listar bucket SILVER                        DENEGADO     Forbidden: 403 GET .../b/finbank-data-platform-dev-silver/o...
+ANALISTA -> query BigQuery SILVER (stg_clientes)        DENEGADO     Forbidden: 403 Access Denied: Table ...finbank_silver_dev.stg_clientes...
+ANALISTA -> query BigQuery GOLD (dim_clientes)          PERMITIDO    10000 filas
+INGENIERO DATOS -> listar bucket BRONZE                 PERMITIDO    5 objetos listados
+INGENIERO DATOS -> query BigQuery SILVER (stg_clientes) PERMITIDO    10000 filas
+INGENIERO DATOS -> query BigQuery GOLD (dim_clientes)   PERMITIDO    10000 filas
+
+Rol Administrador: roles/owner a nivel de proyecto (infra/governance.tf) —
+control total, no se probó por impersonación adicional dado que roles/owner
+es autoexplicativo y de alto riesgo probar destructivamente.
+
+Comando usado para reproducir (ejemplo, rol Analista sobre Bronze):
+  gcloud storage ls gs://finbank-data-platform-dev-bronze/ \
+    --impersonate-service-account=finbank-role-analista-dev@finbank-data-platform-dev.iam.gserviceaccount.com

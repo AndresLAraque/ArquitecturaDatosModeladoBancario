@@ -67,3 +67,16 @@ Todas las entradas siguen el formato: `YYYY-MM-DD — autor — descripción`.
   forzada deliberadamente (bronze roto temporalmente, workflow agotó reintentos y alertó
   correctamente, revertido con `terraform apply` detectando el drift). Evidencia completa en
   `docs/evidencia/fase4/`. **Fase 4 completa.**
+- 2026-08-25 — andresypm@gmail.com — Fase 5 (Gobierno): 3 roles IAM reales con service account
+  impersonable cada uno (`infra/governance.tf`) — Ingeniero de Datos (RW 3 capas), Analista
+  (solo lectura Gold), Administrador (owner). Cloud Audit Logs (Data Access) habilitados sobre
+  Storage/BigQuery. Catálogo de datos en `docs/catalogo-datos.md`. Las 3 alertas operacionales
+  verificadas con log real (incluida anomalía de volumen, probada manipulando el histórico de
+  comparación). **Bug real encontrado y corregido**: `generate_schema_name.sql` mandaba todos
+  los modelos Gold a `finbank_silver_dev` desde Fase 3 por ignorar el `+schema` de la carpeta
+  `marts` — se corrigió el macro, se reconstruyeron los 8 marts en `finbank_gold_dev`, se
+  limpiaron las copias huérfanas en Silver, se corrigió la query de reporte del Workflow y el
+  permiso del orquestador, se republicó la imagen `transform` y se redesplegaron los Cloud Run
+  Jobs. Corrida completa de verificación post-fix: 464s, `SUCCEEDED`. Evidencia completa
+  (matriz de acceso real por impersonación, log de anomalía de volumen) en
+  `docs/evidencia/fase5/`. **Fase 5 completa — prueba técnica completa (Fases 0-5).**

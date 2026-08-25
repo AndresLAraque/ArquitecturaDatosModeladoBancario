@@ -31,3 +31,4 @@ models:
     marts:
       +materialized: table   # kpi_cartera_diaria se sobreescribe a "incremental" en su propio archivo
       +tags: ['gold']
+      +schema: finbank_gold_dev

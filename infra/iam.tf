@@ -146,3 +146,10 @@ resource "google_bigquery_dataset_iam_member" "orchestrator_silver_viewer" {
   role       = "roles/bigquery.dataViewer"
   member     = "serviceAccount:${google_service_account.orchestrator.email}"
 }
+
+resource "google_bigquery_dataset_iam_member" "orchestrator_gold_viewer" {
+  dataset_id = google_bigquery_dataset.gold.dataset_id
+  project    = var.project_id
+  role       = "roles/bigquery.dataViewer"
+  member     = "serviceAccount:${google_service_account.orchestrator.email}"
+}
