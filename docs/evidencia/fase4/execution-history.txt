@@ -1,0 +1,9 @@
+Historial de ejecuciones reales del Workflow finbank-pipeline-dev
+(gcloud workflows executions list finbank-pipeline-dev --location=us-central1)
+
+1) 308d9428-fd86-4fd5-8c58-933df3e13610  FAILED     2026-08-25T05:15:52Z -> 2026-08-25T05:24:13Z (falla forzada de prueba, Bronze)
+2) 024f8830-7bf9-4f5c-96b0-d93ec842e96a  SUCCEEDED  2026-08-25T05:08:19Z -> 2026-08-25T05:15:03Z (403.9s)
+3) 1c004876-39a7-43d4-bca7-07fac3ee6414  SUCCEEDED  2026-08-25T04:58:41Z -> 2026-08-25T05:07:29Z (528.2s)
+
+Dashboard accesible sin tocar código fuente:
+https://console.cloud.google.com/workflows/workflow/us-central1/finbank-pipeline-dev/executions?project=finbank-data-platform-dev

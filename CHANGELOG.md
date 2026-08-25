@@ -57,3 +57,13 @@ Todas las entradas siguen el formato: `YYYY-MM-DD — autor — descripción`.
   (materialización incremental, snapshot diario tipo Kimball). Linaje de 10 campos calculados
   en `/docs/linaje.md`. 43/43 pruebas dbt en verde (Silver + Gold). Evidencia con verificación
   matemática de negocio en `docs/evidencia/fase3-gold/`. **Fase 3 completa.**
+- 2026-08-25 — andresypm@gmail.com — Fase 4 (Orquestación): 3 Cloud Run Jobs (bronze + transform
+  reutilizada para silver/gold) desplegados vía Terraform (`infra/cloud_run.tf`), imágenes en
+  Artifact Registry. Workflow real (`orchestration/pipeline_workflow.yaml`, reemplaza el
+  placeholder de Fase 2): Bronze→Silver→Gold con dependencias explícitas, 3 reintentos con
+  backoff exponencial por etapa, alertas de fallo/reporte diario/anomalía de volumen vía logging
+  estructurado + `google_monitoring_alert_policy` (`infra/monitoring.tf`) — sin credenciales de
+  correo en el código. Probado real: 2 ejecuciones exitosas end-to-end (528s, 404s) y 1 falla
+  forzada deliberadamente (bronze roto temporalmente, workflow agotó reintentos y alertó
+  correctamente, revertido con `terraform apply` detectando el drift). Evidencia completa en
+  `docs/evidencia/fase4/`. **Fase 4 completa.**

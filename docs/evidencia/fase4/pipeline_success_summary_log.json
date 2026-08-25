@@ -1,0 +1,16 @@
+{
+  "insertId": "hjbbe2f50h1aw",
+  "jsonPayload": {
+    "dag_name": "finbank-pipeline-dev",
+    "duration_seconds": 527.9376468658447,
+    "event_type": "PIPELINE_SUCCESS_SUMMARY",
+    "quality_alerts_count": 2998,
+    "records_by_layer": {
+      "gold_fact_cartera": 29880,
+      "gold_fact_transacciones": 497256,
+      "silver_movimientos": 497256
+    }
+  },
+  "severity": "WARNING",
+  "logName": "projects/finbank-data-platform-dev/logs/Workflows"
+}

@@ -1,26 +1,188 @@
-# PLACEHOLDER — provisionado en la Fase 2 (IaC) para que el recurso
-# `google_workflows_workflow` exista desde ya. El contenido REAL —llamadas a
-# los jobs de Cloud Run de Bronze/Silver/Gold, dependencias explícitas,
-# reintentos con backoff exponencial y notificación de resultado— se
-# implementa en la Fase 4 (Orquestación) y reemplaza este archivo. Terraform
-# vuelve a aplicar el cambio automáticamente porque el recurso referencia
-# este archivo por contenido.
+# Orquestador del pipeline FinBank — Bronze -> Silver -> Gold.
+#
+# Dependencias explícitas: Silver solo arranca si Bronze terminó
+# exitosamente; Gold solo arranca si Silver terminó exitosamente (cada
+# `main` step corre secuencialmente y un `raise` sin capturar en
+# `run_stage` detiene toda la ejecución — no hay forma de que Silver
+# arranque si Bronze fue el que falló).
+#
+# Reintentos: cada etapa se reintenta hasta 3 veces con backoff exponencial
+# (10s, 20s, 40s...) ANTES de considerarse fallida (ver `run_stage`).
+#
+# Alertas: sin credenciales de correo en este archivo — cada evento se
+# loguea estructurado (`sys.log` con `json:`) y las políticas de Cloud
+# Monitoring (infra/monitoring.tf) hacen match sobre `event_type` y envían
+# el correo. Este workflow nunca sabe que existe un email de destino.
+
 main:
-  steps:
-    - bronze_placeholder:
-        call: sys.log
-        args:
-          text: "Bronze — placeholder Fase 2, implementación real en Fase 4"
-          severity: INFO
-    - silver_placeholder:
-        call: sys.log
-        args:
-          text: "Silver — placeholder Fase 2, implementación real en Fase 4"
-          severity: INFO
-    - gold_placeholder:
-        call: sys.log
-        args:
-          text: "Gold — placeholder Fase 2, implementación real en Fase 4"
-          severity: INFO
-    - finish:
-        return: "FinBank pipeline placeholder OK — pendiente de Fase 4"
+    steps:
+        - init:
+            assign:
+                - dag_name: "finbank-pipeline-dev"
+                - project_id: "finbank-data-platform-dev"
+                - region: "us-central1"
+                - start_time: ${sys.now()}
+
+        - run_bronze:
+            call: run_stage
+            args:
+                task_name: "bronze"
+                job_name: "finbank-bronze-dev"
+                dag_name: ${dag_name}
+                project_id: ${project_id}
+                region: ${region}
+
+        - run_silver:
+            call: run_stage
+            args:
+                task_name: "silver"
+                job_name: "finbank-silver-dev"
+                dag_name: ${dag_name}
+                project_id: ${project_id}
+                region: ${region}
+
+        - run_gold:
+            call: run_stage
+            args:
+                task_name: "gold"
+                job_name: "finbank-gold-dev"
+                dag_name: ${dag_name}
+                project_id: ${project_id}
+                region: ${region}
+
+        # Verificaciones de calidad sobre Gold (requisito explícito del
+        # flujo esperado) ya corrieron dentro del job "gold"
+        # (`dbt test --select tag:gold`, ver pipelines/transform/entrypoint.sh)
+        # — si hubieran fallado, run_gold ya habría lanzado TASK_FAILURE.
+
+        - get_metrics:
+            call: googleapis.bigquery.v2.jobs.query
+            args:
+                projectId: ${project_id}
+                body:
+                    useLegacySql: false
+                    query: |
+                        SELECT
+                          (SELECT COUNT(*) FROM `finbank_silver_dev.stg_movimientos`) AS silver_movimientos,
+                          (SELECT COUNT(*) FROM `finbank_silver_dev.fact_transacciones`) AS gold_transacciones,
+                          (SELECT COUNT(*) FROM `finbank_silver_dev.fact_cartera`) AS gold_cartera,
+                          (SELECT COUNT(*) FROM `finbank_silver_dev.err_calidad_datos`) AS quality_errors
+            result: metrics_result
+
+        - compute_summary:
+            assign:
+                - fields: ${metrics_result.rows[0].f}
+                - silver_movimientos: ${int(fields[0].v)}
+                - gold_transacciones: ${int(fields[1].v)}
+                - gold_cartera: ${int(fields[2].v)}
+                - quality_errors: ${int(fields[3].v)}
+                - duration_seconds: ${sys.now() - start_time}
+
+        # ALERTA 2 — reporte diario de éxito (registros por capa, tiempo
+        # total, # alertas de calidad). Ver infra/monitoring.tf:success_summary
+        - log_success_summary:
+            call: sys.log
+            args:
+                severity: "WARNING" # Monitoring solo dispara sobre ERROR/WARNING/CRITICAL
+                json:
+                    event_type: "PIPELINE_SUCCESS_SUMMARY"
+                    dag_name: ${dag_name}
+                    records_by_layer:
+                        silver_movimientos: ${silver_movimientos}
+                        gold_fact_transacciones: ${gold_transacciones}
+                        gold_fact_cartera: ${gold_cartera}
+                    duration_seconds: ${duration_seconds}
+                    quality_alerts_count: ${quality_errors}
+
+        - return_result:
+            return: "FinBank pipeline completado exitosamente"
+
+# --- Subworkflow: corre un Cloud Run Job y espera a que termine, con
+#     reintentos (3, backoff exponencial) y alerta de fallo si se agotan ---
+run_stage:
+    params: [task_name, job_name, dag_name, project_id, region]
+    steps:
+        - attempt_with_retry:
+            try:
+                call: run_stage_once
+                args:
+                    job_name: ${job_name}
+                    project_id: ${project_id}
+                    region: ${region}
+                result: stage_result
+            retry:
+                predicate: ${always_retry}
+                max_retries: 3
+                backoff:
+                    initial_delay: 10
+                    max_delay: 180
+                    multiplier: 2
+            except:
+                as: e
+                steps:
+                    # ALERTA 1 — fallo de tarea, con DAG, tarea, fecha/hora
+                    # y mensaje de error completo. Ver infra/monitoring.tf:task_failure
+                    - log_task_failure:
+                        call: sys.log
+                        args:
+                            severity: "ERROR"
+                            json:
+                                event_type: "TASK_FAILURE"
+                                dag_name: ${dag_name}
+                                task_name: ${task_name}
+                                error_message: ${json.encode_to_string(e)}
+                                timestamp: ${time.format(sys.now())}
+                    - reraise_to_stop_pipeline:
+                        raise: ${e}
+        - return_result:
+            return: ${stage_result}
+
+# --- Subworkflow: dispara la ejecución del Cloud Run Job y hace polling
+#     hasta que termine (patrón estándar de Google Long-Running Operation:
+#     `done` + `response`/`error`) ---
+run_stage_once:
+    params: [job_name, project_id, region]
+    steps:
+        - trigger_job:
+            call: http.post
+            args:
+                url: ${"https://run.googleapis.com/v2/projects/" + project_id + "/locations/" + region + "/jobs/" + job_name + ":run"}
+                auth:
+                    type: OAuth2
+            result: run_response
+        - extract_operation_name:
+            assign:
+                - operation_name: ${run_response.body.name}
+        - poll_until_done:
+            steps:
+                - wait_before_check:
+                    call: sys.sleep
+                    args:
+                        seconds: 15
+                - check_status:
+                    call: http.get
+                    args:
+                        url: ${"https://run.googleapis.com/v2/" + operation_name}
+                        auth:
+                            type: OAuth2
+                    result: exec_status
+                - branch_on_done:
+                    switch:
+                        - condition: ${"done" in exec_status.body and exec_status.body.done == true}
+                          next: after_poll
+                    next: poll_until_done
+        - after_poll:
+            switch:
+                - condition: ${"error" in exec_status.body}
+                  raise: ${exec_status.body.error}
+        - return_response:
+            return: ${exec_status.body}
+
+# Predicado de reintento: siempre reintenta (hasta max_retries) ante
+# cualquier error de la etapa — requisito del enunciado ("reintentos...
+# ante tarea fallida", sin distinguir tipo de error).
+always_retry:
+    params: [e]
+    steps:
+        - decide:
+            return: true

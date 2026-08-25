@@ -1,0 +1,22 @@
+Waiting for execution [1c004876-39a7-43d4-bca7-07fac3ee6414] to complete...
+.....................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................done.
+argument: 'null'
+createTime: '2026-08-25T04:58:41.100948567Z'
+duration: 528.244094823s
+endTime: '2026-08-25T05:07:29.345043390Z'
+labels:
+  ambiente: dev
+  goog-terraform-provisioned: 'true'
+  proyecto: finbank-data-platform
+  prueba: dataknow-tecnica
+name: projects/795239331474/locations/us-central1/workflows/finbank-pipeline-dev/executions/1c004876-39a7-43d4-bca7-07fac3ee6414
+result: '"FinBank pipeline completado exitosamente"'
+startTime: '2026-08-25T04:58:41.100948567Z'
+state: SUCCEEDED
+status:
+  currentSteps:
+  - routine: main
+    step: return_result
+workflowRevisionId: 000002-152
+
+[exited with code 0]

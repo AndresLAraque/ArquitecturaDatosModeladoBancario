@@ -1,0 +1,12 @@
+{
+  "insertId": "k9bqmxf55zbdc",
+  "jsonPayload": {
+    "dag_name": "finbank-pipeline-dev",
+    "error_message": "{\"code\":10,\"message\":\"Task finbank-bronze-dev-6r2nt-task0 failed with exit code: 1 and message: The container exited with an error.\"}",
+    "event_type": "TASK_FAILURE",
+    "task_name": "bronze",
+    "timestamp": "2026-08-25T05:24:12.817691Z"
+  },
+  "severity": "ERROR",
+  "logName": "projects/finbank-data-platform-dev/logs/Workflows"
+}

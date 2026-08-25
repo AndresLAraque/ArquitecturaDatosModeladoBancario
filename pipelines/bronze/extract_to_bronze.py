@@ -35,6 +35,8 @@ import yaml
 from google.cloud import secretmanager, storage
 from sqlalchemy import create_engine, text
 
+from alerting import check_volume_anomaly  # pipelines/common/alerting.py, copiado al mismo dir en la imagen
+
 
 def load_config(path: str) -> dict:
     return yaml.safe_load(Path(path).read_text(encoding="utf-8"))
@@ -159,6 +161,11 @@ def main(config_path: str):
                 "duration_s": duration, "path": gcs_path,
             }
             print(f"  {table}: {n_rows:,} filas -> {gcs_path} ({size_bytes:,} bytes, {duration}s)")
+
+            # ALERTA 3 (Fase 4/5) — anomalía de volumen: se evalúa AQUÍ, antes
+            # de que el pipeline continúe hacia Silver/Gold, comparando contra
+            # el histórico de hasta 7 corridas anteriores en _logs/.
+            check_volume_anomaly(gcs, bucket, table, n_rows)
 
         except Exception as e:  # noqa: BLE001 — se captura a propósito: una tabla fallida no debe tumbar las demás
             had_errors = True

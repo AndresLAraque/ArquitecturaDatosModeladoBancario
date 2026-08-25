@@ -1,0 +1,44 @@
+Waiting for execution [308d9428-fd86-4fd5-8c58-933df3e13610] to complete...
+......................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................done.
+argument: 'null'
+createTime: '2026-08-25T05:15:52.102013712Z'
+duration: 501.032934080s
+endTime: '2026-08-25T05:24:13.134947792Z'
+error:
+  context: |-
+    Task finbank-bronze-dev-6r2nt-task0 failed with exit code: 1 and message: The container exited with an error.
+    in step "reraise_to_stop_pipeline", routine "run_stage", line: 136
+    in step "run_bronze", routine "main", line: 27
+  payload: '{"code":10,"message":"Task finbank-bronze-dev-6r2nt-task0 failed with
+    exit code: 1 and message: The container exited with an error."}'
+  stackTrace:
+    elements:
+    - position:
+        column: '13'
+        length: '4'
+        line: '27'
+      routine: main
+      step: run_bronze
+    - position:
+        column: '25'
+        length: '5'
+        line: '136'
+      routine: run_stage
+      step: reraise_to_stop_pipeline
+labels:
+  ambiente: dev
+  goog-terraform-provisioned: 'true'
+  proyecto: finbank-data-platform
+  prueba: dataknow-tecnica
+name: projects/795239331474/locations/us-central1/workflows/finbank-pipeline-dev/executions/308d9428-fd86-4fd5-8c58-933df3e13610
+startTime: '2026-08-25T05:15:52.102013712Z'
+state: FAILED
+status:
+  currentSteps:
+  - routine: main
+    step: run_bronze
+  - routine: run_stage
+    step: reraise_to_stop_pipeline
+workflowRevisionId: 000002-152
+
+[exited with code 0]

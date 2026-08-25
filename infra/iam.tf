@@ -102,3 +102,47 @@ resource "google_pubsub_topic_iam_member" "orchestrator_publisher" {
   role   = "roles/pubsub.publisher"
   member = "serviceAccount:${google_service_account.orchestrator.email}"
 }
+
+# --- Logging estructurado (Fase 4/5): las 3 identidades escriben las
+# alertas de TASK_FAILURE / PIPELINE_SUCCESS_SUMMARY / VOLUME_ANOMALY que
+# consumen las políticas de Cloud Monitoring (infra/monitoring.tf) --------
+resource "google_project_iam_member" "ingestion_log_writer" {
+  project = var.project_id
+  role    = "roles/logging.logWriter"
+  member  = "serviceAccount:${google_service_account.ingestion.email}"
+}
+
+resource "google_project_iam_member" "transform_log_writer" {
+  project = var.project_id
+  role    = "roles/logging.logWriter"
+  member  = "serviceAccount:${google_service_account.transform.email}"
+}
+
+resource "google_project_iam_member" "orchestrator_log_writer" {
+  project = var.project_id
+  role    = "roles/logging.logWriter"
+  member  = "serviceAccount:${google_service_account.orchestrator.email}"
+}
+
+# El orquestador necesita ver el estado (operations/executions) de los
+# Cloud Run Jobs que dispara, para hacer polling hasta que terminen.
+resource "google_project_iam_member" "orchestrator_run_viewer" {
+  project = var.project_id
+  role    = "roles/run.viewer"
+  member  = "serviceAccount:${google_service_account.orchestrator.email}"
+}
+
+# Y consultar BigQuery de solo lectura para armar el reporte diario de
+# éxito (registros procesados por capa).
+resource "google_project_iam_member" "orchestrator_bq_job_user" {
+  project = var.project_id
+  role    = "roles/bigquery.jobUser"
+  member  = "serviceAccount:${google_service_account.orchestrator.email}"
+}
+
+resource "google_bigquery_dataset_iam_member" "orchestrator_silver_viewer" {
+  dataset_id = google_bigquery_dataset.silver.dataset_id
+  project    = var.project_id
+  role       = "roles/bigquery.dataViewer"
+  member     = "serviceAccount:${google_service_account.orchestrator.email}"
+}

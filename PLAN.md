@@ -164,21 +164,35 @@ Decisiones cerradas: **Plataforma = GCP (free trial)** · **Sector = Escenario A
 
 ---
 
-## Fase 4 — Orquestación
+## Fase 4 — Orquestación ✅ COMPLETADA (2026-08-25)
 
-**Carpeta:** `/orchestration`
+**Carpeta:** `/orchestration` + `/pipelines/bronze,transform` (contenedores) + `infra/cloud_run.tf`,
+`infra/monitoring.tf`
 
-- [ ] Definición YAML de Cloud Workflows: Bronze → Silver → Gold con dependencias explícitas
-      (Silver espera éxito de Bronze; Gold espera éxito de Silver)
-- [ ] Cloud Scheduler: cron `0 2 * * *`, zona horaria local del proyecto (`America/Bogota`)
-- [ ] Reintentos: 3 intentos, backoff exponencial (soportado nativamente por Workflows `retry` policy)
-- [ ] Timeout por paso coherente con volumen (ej. 15-30 min para Silver/Gold)
-- [ ] Alerta de fallo → Pub/Sub → Cloud Function/Monitoring → email, con DAG/tarea/fecha/error
-- [ ] Reporte diario de éxito → registros por capa, tiempo total, # alertas de calidad
-- [ ] Dashboard/log accesible: Cloud Logging + un panel simple en Cloud Monitoring, o vista en
-      BigQuery sobre la tabla de logs de ejecución
-- [ ] Evidencia: captura de ejecución exitosa, captura de alerta de fallo (forzar un error de prueba),
-      captura del reporte diario, historial de 2+ ejecuciones
+- [x] 3 imágenes Docker (bronze + transform reutilizada para silver/gold) construidas y
+      publicadas en Artifact Registry
+- [x] 3 `google_cloud_run_v2_job` (bronze/silver/gold) desplegados, probados individualmente
+      en la nube antes de orquestarlos (los 3 corrieron exitosos por separado)
+- [x] Definición YAML de Cloud Workflows real (ya no placeholder): Bronze → Silver → Gold con
+      dependencias explícitas — un `raise` sin capturar en cualquier etapa detiene el resto
+- [x] Cloud Scheduler: cron `0 2 * * *`, zona horaria `America/Bogota` (desde Fase 2)
+- [x] Reintentos: 3 intentos, backoff exponencial (10s/20s/40s, tope 180s) vía `retry` policy
+      de Workflows — **verificado real**: la falla forzada agotó los 3 reintentos (~8.5 min)
+      antes de fallar definitivamente
+- [x] Timeout por tarea: 900s por Cloud Run Job (margen amplio sobre tiempos reales: Bronze ~80s,
+      Silver/Gold varios minutos con dbt run+test)
+- [x] Alerta de fallo: sin credenciales de correo en el código — `sys.log` estructurado +
+      `google_monitoring_alert_policy` (log-based) + `google_monitoring_notification_channel`
+      (email). **Verificado real**: log `TASK_FAILURE` con dag_name/task_name/error_message/timestamp
+- [x] Reporte diario de éxito: `PIPELINE_SUCCESS_SUMMARY` con registros por capa, duración,
+      # alertas de calidad — **verificado real** en 2 corridas exitosas
+- [x] Alerta de anomalía de volumen (Fase 5, implementada aquí): `pipelines/common/alerting.py`,
+      compara contra el promedio de las últimas 7 corridas (logs de Bronze en GCS)
+- [x] Dashboard/log accesible sin código: Cloud Workflows Console + Cloud Logging
+- [x] Evidencia real (no simulada): 2 ejecuciones completas exitosas (528s y 404s) + 1 falla
+      forzada deliberadamente (rompiendo temporalmente el job de Bronze, revertido después con
+      `terraform apply` — Terraform detectó y corrigió el drift solo). Todo en
+      `docs/evidencia/fase4/`
 
 ---
 
