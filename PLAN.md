@@ -16,10 +16,12 @@ Decisiones cerradas: **Plataforma = GCP (free trial)** · **Sector = Escenario A
       "...Trial..."; hay una cuenta vieja `0187EC-7D6577-03A296` (USD) de un trial anterior
       que quedó `open: false` — esa no se usa, no confundir
 - [ ] **Fijar un presupuesto y alerta de billing** (Billing → Budgets & alerts) en, p.ej., $50/$100/$200 — red de seguridad para no drenar el crédito sin darte cuenta
-- [ ] Habilitar las APIs necesarias — se hará vía Terraform (`google_project_service`) en
-      Fase 2 en vez de manualmente, para que quede como código: Cloud Storage, BigQuery,
-      Cloud SQL Admin, Cloud Workflows, Cloud Scheduler, Cloud Run, Secret Manager,
-      Cloud Logging/Monitoring, Pub/Sub, IAM, Artifact Registry
+      (pendiente real — no se configuró; el trial nunca se acercó al límite durante la prueba)
+- [x] Habilitar las APIs necesarias — vía Terraform (`google_project_service` en
+      `infra/apis.tf`, no manualmente) en Fase 2: Cloud Storage, BigQuery, Cloud SQL Admin,
+      Cloud Workflows, Cloud Scheduler, Cloud Run, Secret Manager, Cloud Logging/Monitoring,
+      Pub/Sub, IAM, Artifact Registry — todas habilitadas y usadas por el resto de recursos
+      (`depends_on = [google_project_service.apis]` en cada `.tf` que las necesita)
 
 ### Herramientas locales (verificado en esta máquina)
 - [x] Git — instalado
@@ -28,14 +30,16 @@ Decisiones cerradas: **Plataforma = GCP (free trial)** · **Sector = Escenario A
 - [x] **Google Cloud SDK (`gcloud`)** — instalado, `gcloud init` completado, cuenta y
       proyecto configurados (ver arriba)
 - [x] **Terraform 1.15.8** — instalado vía `winget install Hashicorp.Terraform`
-- [ ] `dbt-bigquery` — se instala vía `pip` dentro del venv del proyecto en Fase 3
-- [ ] Cuenta de GitHub/GitLab con el repo remoto creado (aún no vinculado — repo local ya
-      inicializado con `git init`)
+- [x] `dbt-bigquery` — instalado vía `pip` dentro del venv de `pipelines/dbt_finbank` en Fase 3
+- [x] Cuenta de GitHub con el repo remoto creado y vinculado —
+      https://github.com/AndresLAraque/ArquitecturaDatosModeladoBancario
 
 ### Decisiones a mantener consistentes en todo el repo
 - [x] Nombres de tablas fuente exactamente como en el enunciado (`TB_CLIENTES_CORE`, etc.)
 - [x] Región GCP única para todos los recursos (sugerido: `us-central1`, entra en free tier de GCS)
-- [ ] Convención de nombres de recursos: `finbank-<capa>-<entorno>` (ej. `finbank-bronze-dev`)
+- [x] Convención de nombres de recursos: `finbank-<capa>-<entorno>` (ej. `finbank-sqlpg-dev`,
+      `finbank-pipeline-dev`, `finbank-bronze-dev` job) — aplicada consistentemente en todo
+      `infra/`, ver `infra/RESOURCES.md`
 
 ---
 
