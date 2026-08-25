@@ -247,6 +247,6 @@ Detalle completo en la bitácora personal.
 - [x] Repo remoto creado (GitHub) — https://github.com/AndresLAraque/ArquitecturaDatosModeladoBancario
 - [x] README con sector + plataforma + justificación como **primera sección**
 - [x] Todos los entregables de las 5 fases presentes en sus carpetas
-- [ ] Revisión final: sin credenciales en el historial de git, sin `.tfstate` commiteado —
-      pendiente una pasada de verificación explícita antes de compartir con el evaluador
+- [x] Revisión final: verificado con `git log --all` que nunca se commiteó ningún `.tfstate`
+      ni `.env`, y `git grep` no encontró credenciales hardcodeadas en `.tf`/`.py`/`.yml`
 - [ ] Compartir el repositorio con el evaluador (acción del candidato, fuera del alcance de esta sesión)
