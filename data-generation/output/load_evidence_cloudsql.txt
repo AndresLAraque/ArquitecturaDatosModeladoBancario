@@ -1,4 +1,4 @@
-Evidencia de carga — 2026-08-24T16:05:49.983440
+Evidencia de carga — 2026-08-24T21:28:54.437244
 
 TB_PRODUCTOS_CAT: 50 registros
 TB_SUCURSALES_RED: 200 registros

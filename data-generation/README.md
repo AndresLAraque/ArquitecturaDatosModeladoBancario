@@ -87,9 +87,26 @@ obligatorios de negocio como `fec_nac`), configurable en `config.yaml:null_pct`.
 
 ## Apuntar a Cloud SQL en vez del Postgres local
 
-`load_to_postgres.py` lee la conexión de variables de entorno
-(`FINBANK_DB_HOST`, `FINBANK_DB_PORT`, `FINBANK_DB_NAME`, `FINBANK_DB_USER`,
-`FINBANK_DB_PASSWORD`). Para apuntar a Cloud SQL en vez de al Postgres
-local, basta con exportar esas variables (la contraseña debería venir del
-Secret Manager de GCP, nunca escrita en un archivo) antes de correr el
-script — el código no cambia.
+Ya cargado y verificado (`output/load_evidence_cloudsql.txt`) contra
+`finbank-sqlpg-dev` (Fase 2). Para reproducirlo, en vez de las variables
+`FINBANK_DB_HOST/PORT`, exportar:
+
+```bash
+export FINBANK_DB_INSTANCE_CONNECTION_NAME="<project>:<region>:<instance>"
+export FINBANK_GCP_PROJECT_ID="<project>"
+export FINBANK_DB_SECRET_ID="finbank-db-password-dev"
+export FINBANK_DB_USER="finbank"
+export FINBANK_DB_NAME="finbank"
+export FINBANK_DB_PASSWORD=""   # IMPORTANTE: vacía, si no pisa el fallback a Secret Manager
+```
+
+`build_engine()` detecta `FINBANK_DB_INSTANCE_CONNECTION_NAME` y usa el
+**Cloud SQL Python Connector** (`pg8000`) en vez de TCP directo — túnel
+cifrado vía la Cloud SQL Admin API, sin IP autorizada ni Auth Proxy aparte.
+La contraseña se resuelve sola desde Secret Manager si no se exporta
+`FINBANK_DB_PASSWORD` (o si se exporta vacía).
+
+La carga masiva usa `COPY ... FROM STDIN` (no `INSERT`/`executemany`): con
+500k+ filas, miles de round-trips uno por uno sobre el túnel del connector
+llegaron a tumbar la conexión SSL a mitad de carga. `COPY` manda todo en un
+solo stream — mismo resultado con psycopg2 (local) y pg8000 (Cloud SQL).

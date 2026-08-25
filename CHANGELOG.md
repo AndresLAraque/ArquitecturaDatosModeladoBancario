@@ -26,3 +26,12 @@ Todas las entradas siguen el formato: `YYYY-MM-DD — autor — descripción`.
   se completa en Fase 4). Backend remoto de estado en GCS. Corregido sobre la marcha un error
   de edición de Cloud SQL (`ENTERPRISE_PLUS` no soporta `db-f1-micro`). Evidencia y lista de
   recursos en `docs/evidencia/` e `infra/RESOURCES.md`.
+- 2026-08-24 — andresypm@gmail.com — Datos de Fase 1 cargados también en Cloud SQL
+  (`finbank-sqlpg-dev`), no solo en el Postgres local: `load_to_postgres.py` ahora soporta
+  el Cloud SQL Python Connector (mismo código, sin IP pública autorizada). En el camino se
+  corrigieron 5 bugs reales de compatibilidad con el driver `pg8000` (password desde
+  Secret Manager pisada por `.env`, `pd.read_json` reconvirtiendo `num_doc` a entero,
+  `INSERT` multi-fila de pandas incompatible con pg8000, enteros nullable serializados como
+  `"44.0"`/`"<NA>"`, y una caída de socket SSL en `executemany` con 10k+ filas). Carga final
+  vía `COPY ... FROM STDIN`, mucho más rápida y estable. Evidencia en
+  `data-generation/output/load_evidence_cloudsql.txt`.

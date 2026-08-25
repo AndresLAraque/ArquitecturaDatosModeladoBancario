@@ -1,0 +1,8 @@
+Evidencia de carga — 2026-08-24T21:30:31.374939
+
+TB_PRODUCTOS_CAT: 50 registros
+TB_SUCURSALES_RED: 200 registros
+TB_CLIENTES_CORE: 10,000 registros
+TB_OBLIGACIONES: 30,000 registros
+TB_MOV_FINANCIEROS: 501,500 registros
+TB_COMISIONES_LOG: 80,000 registros
