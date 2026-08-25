@@ -1,9 +1,10 @@
 # Orquestación: Cloud Workflows + Cloud Scheduler (decisión documentada en
 # el README raíz — se prefirió sobre Cloud Composer para no agotar el
 # crédito del free trial con un ambiente Airflow gestionado de costo fijo).
-# El contenido real del workflow (dependencias Bronze->Silver->Gold,
-# reintentos, backoff) se completa en la Fase 4; aquí solo se aprovisiona el
-# recurso con un placeholder para dejar la infraestructura lista.
+# `source_contents` lee directamente de orchestration/pipeline_workflow.yaml,
+# así que este recurso siempre despliega el contenido real de ese archivo:
+# en Fase 2 era un placeholder mínimo; desde Fase 4 es el workflow completo
+# (dependencias Bronze->Silver->Gold, reintentos, backoff, alertas).
 
 resource "google_workflows_workflow" "pipeline" {
   name            = "${var.resource_prefix}-pipeline-${var.environment}"
