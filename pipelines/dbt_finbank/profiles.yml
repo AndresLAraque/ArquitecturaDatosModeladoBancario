@@ -1,0 +1,17 @@
+# Perfil local del proyecto (se referencia con --profiles-dir . para no
+# tener que editar el ~/.dbt/profiles.yml global del evaluador). Sin
+# credenciales: method "oauth" reutiliza las Application Default
+# Credentials ya configuradas con `gcloud auth application-default login`
+# — igual que Terraform y los scripts de Bronze/Silver.
+finbank:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: oauth
+      project: finbank-data-platform-dev
+      dataset: finbank_silver_dev
+      location: us-central1
+      threads: 4
+      job_execution_timeout_seconds: 300
+      job_retries: 1

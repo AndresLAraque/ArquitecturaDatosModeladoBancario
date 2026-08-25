@@ -1,0 +1,20 @@
+gcp:
+  project_id: finbank-data-platform-dev
+
+bronze_bucket: finbank-data-platform-dev-bronze
+silver_dataset: finbank_silver_dev
+
+# Debe reflejar los mismos modos que pipelines/bronze/config.yaml
+tables:
+  TB_PRODUCTOS_CAT:
+    mode: full
+  TB_SUCURSALES_RED:
+    mode: full
+  TB_CLIENTES_CORE:
+    mode: full
+  TB_OBLIGACIONES:
+    mode: full
+  TB_MOV_FINANCIEROS:
+    mode: incremental
+  TB_COMISIONES_LOG:
+    mode: incremental

@@ -1,0 +1,17 @@
+version: 2
+
+sources:
+  - name: bronze_raw
+    description: >
+      Tablas aterrizadas por pipelines/silver/load_bronze_to_bq.py desde los
+      Parquet de Bronze (GCS). Crudas a propósito — sin limpieza, sin dedup,
+      sin tipado forzado. La limpieza real ocurre en los modelos staging.
+    database: "{{ target.project }}"
+    schema: "{{ target.schema }}"
+    tables:
+      - name: raw_tb_clientes_core
+      - name: raw_tb_productos_cat
+      - name: raw_tb_sucursales_red
+      - name: raw_tb_mov_financieros
+      - name: raw_tb_obligaciones
+      - name: raw_tb_comisiones_log

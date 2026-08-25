@@ -1,0 +1,27 @@
+name: 'finbank_silver'
+version: '1.0.0'
+config-version: 2
+profile: 'finbank'
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+# Salt para el hash de columnas PII (macro hash_pii). NO es un secreto de
+# producción (es una prueba técnica con datos sintéticos) — en un entorno
+# real este valor vendría de Secret Manager, nunca de un archivo versionado.
+# Documentado también en README.md.
+vars:
+  pii_salt: "finbank-demo-salt-2026-no-es-secreto-real"
+
+models:
+  finbank_silver:
+    staging:
+      +materialized: table
+    errors:
+      +materialized: table
+    quality:
+      +materialized: table

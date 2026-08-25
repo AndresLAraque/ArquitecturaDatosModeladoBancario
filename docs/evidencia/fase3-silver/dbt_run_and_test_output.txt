@@ -1,0 +1,85 @@
+[0m04:03:10  Running with dbt=1.8.8
+[0m04:03:13  Registered adapter: bigquery=1.8.3
+[0m04:03:14  Found 8 models, 21 data tests, 6 sources, 481 macros
+[0m04:03:14  
+[0m04:03:17  Concurrency: 4 threads (target='dev')
+[0m04:03:17  
+[0m04:03:17  1 of 8 START sql table model finbank_silver_dev.stg_clientes ................... [RUN]
+[0m04:03:17  2 of 8 START sql table model finbank_silver_dev.stg_productos .................. [RUN]
+[0m04:03:17  3 of 8 START sql table model finbank_silver_dev.stg_sucursales ................. [RUN]
+[0m04:03:22  3 of 8 OK created sql table model finbank_silver_dev.stg_sucursales ............ [[32mCREATE TABLE (200.0 rows, 32.7 KiB processed)[0m in 4.55s]
+[0m04:03:22  2 of 8 OK created sql table model finbank_silver_dev.stg_productos ............. [[32mCREATE TABLE (50.0 rows, 8.0 KiB processed)[0m in 4.85s]
+[0m04:03:23  1 of 8 OK created sql table model finbank_silver_dev.stg_clientes .............. [[32mCREATE TABLE (10.0k rows, 1.8 MiB processed)[0m in 5.74s]
+[0m04:03:23  4 of 8 START sql table model finbank_silver_dev.err_calidad_datos .............. [RUN]
+[0m04:03:23  5 of 8 START sql table model finbank_silver_dev.stg_comisiones ................. [RUN]
+[0m04:03:23  6 of 8 START sql table model finbank_silver_dev.stg_movimientos ................ [RUN]
+[0m04:03:23  7 of 8 START sql table model finbank_silver_dev.stg_obligaciones ............... [RUN]
+[0m04:03:28  7 of 8 OK created sql table model finbank_silver_dev.stg_obligaciones .......... [[32mCREATE TABLE (29.9k rows, 5.4 MiB processed)[0m in 4.64s]
+[0m04:03:28  5 of 8 OK created sql table model finbank_silver_dev.stg_comisiones ............ [[32mCREATE TABLE (79.9k rows, 11.4 MiB processed)[0m in 5.32s]
+[0m04:03:29  4 of 8 OK created sql table model finbank_silver_dev.err_calidad_datos ......... [[32mCREATE TABLE (3.0k rows, 26.9 MiB processed)[0m in 6.20s]
+[0m04:03:29  8 of 8 START sql table model finbank_silver_dev.dq_report_silver ............... [RUN]
+[0m04:03:30  6 of 8 OK created sql table model finbank_silver_dev.stg_movimientos ........... [[32mCREATE TABLE (497.3k rows, 97.0 MiB processed)[0m in 7.43s]
+[0m04:03:34  8 of 8 OK created sql table model finbank_silver_dev.dq_report_silver .......... [[32mCREATE TABLE (27.0 rows, 11.0 MiB processed)[0m in 4.67s]
+[0m04:03:34  
+[0m04:03:34  Finished running 8 table models in 0 hours 0 minutes and 20.04 seconds (20.04s).
+[0m04:03:34  
+[0m04:03:34  [32mCompleted successfully[0m
+[0m04:03:34  
+[0m04:03:34  Done. PASS=8 WARN=0 ERROR=0 SKIP=0 TOTAL=8
+=====TEST=====
+[0m04:03:40  Running with dbt=1.8.8
+[0m04:03:42  Registered adapter: bigquery=1.8.3
+[0m04:03:44  Found 8 models, 21 data tests, 6 sources, 481 macros
+[0m04:03:44  
+[0m04:03:46  Concurrency: 4 threads (target='dev')
+[0m04:03:46  
+[0m04:03:46  1 of 21 START test accepted_values_stg_clientes_cod_segmento__BAS__STD__PRM__ELT  [RUN]
+[0m04:03:46  2 of 21 START test accepted_values_stg_clientes_estado_cli__ACTIVO__INACTIVO__BLOQUEADO  [RUN]
+[0m04:03:46  3 of 21 START test accepted_values_stg_movimientos_cod_estado_mov__EXITOSA__FALLIDA__PENDIENTE  [RUN]
+[0m04:03:46  4 of 21 START test accepted_values_stg_productos_tip_prod__CRED_LIBRE_INVERSION__CRED_ROTATIVO__TARJETA_DIGITAL__CUENTA_AHORRO_DIGITAL__PAGO_PSE__TRANSFERENCIA_ACH__CORRESPONSALIA__RECARGA  [RUN]
+[0m04:03:49  1 of 21 PASS accepted_values_stg_clientes_cod_segmento__BAS__STD__PRM__ELT ..... [[32mPASS[0m in 3.13s]
+[0m04:03:49  5 of 21 START test assert_dias_mora_no_negativo ................................ [RUN]
+[0m04:03:49  2 of 21 PASS accepted_values_stg_clientes_estado_cli__ACTIVO__INACTIVO__BLOQUEADO  [[32mPASS[0m in 3.22s]
+[0m04:03:49  6 of 21 START test assert_vr_mov_positivo ...................................... [RUN]
+[0m04:03:49  4 of 21 PASS accepted_values_stg_productos_tip_prod__CRED_LIBRE_INVERSION__CRED_ROTATIVO__TARJETA_DIGITAL__CUENTA_AHORRO_DIGITAL__PAGO_PSE__TRANSFERENCIA_ACH__CORRESPONSALIA__RECARGA  [[32mPASS[0m in 3.32s]
+[0m04:03:49  7 of 21 START test not_null_stg_clientes_id_cli ................................ [RUN]
+[0m04:03:49  3 of 21 PASS accepted_values_stg_movimientos_cod_estado_mov__EXITOSA__FALLIDA__PENDIENTE  [[32mPASS[0m in 3.44s]
+[0m04:03:49  8 of 21 START test not_null_stg_comisiones_id_comision ......................... [RUN]
+[0m04:03:52  6 of 21 PASS assert_vr_mov_positivo ............................................ [[32mPASS[0m in 2.60s]
+[0m04:03:52  9 of 21 START test not_null_stg_movimientos_id_mov ............................. [RUN]
+[0m04:03:52  5 of 21 PASS assert_dias_mora_no_negativo ...................................... [[32mPASS[0m in 2.74s]
+[0m04:03:52  10 of 21 START test not_null_stg_obligaciones_id_oblig ......................... [RUN]
+[0m04:03:52  7 of 21 PASS not_null_stg_clientes_id_cli ...................................... [[32mPASS[0m in 2.73s]
+[0m04:03:52  11 of 21 START test not_null_stg_productos_cod_prod ............................ [RUN]
+[0m04:03:52  8 of 21 PASS not_null_stg_comisiones_id_comision ............................... [[32mPASS[0m in 2.81s]
+[0m04:03:52  12 of 21 START test not_null_stg_sucursales_cod_suc ............................ [RUN]
+[0m04:03:54  9 of 21 PASS not_null_stg_movimientos_id_mov ................................... [[32mPASS[0m in 2.78s]
+[0m04:03:54  13 of 21 START test relationships_stg_comisiones_cod_prod__cod_prod__ref_stg_productos_  [RUN]
+[0m04:03:55  10 of 21 PASS not_null_stg_obligaciones_id_oblig ............................... [[32mPASS[0m in 2.80s]
+[0m04:03:55  14 of 21 START test relationships_stg_movimientos_cod_prod__cod_prod__ref_stg_productos_  [RUN]
+[0m04:03:55  12 of 21 PASS not_null_stg_sucursales_cod_suc .................................. [[32mPASS[0m in 2.67s]
+[0m04:03:55  11 of 21 PASS not_null_stg_productos_cod_prod .................................. [[32mPASS[0m in 2.89s]
+[0m04:03:55  15 of 21 START test relationships_stg_movimientos_id_cli__id_cli__ref_stg_clientes_  [RUN]
+[0m04:03:55  16 of 21 START test relationships_stg_obligaciones_id_cli__id_cli__ref_stg_clientes_  [RUN]
+[0m04:03:57  13 of 21 PASS relationships_stg_comisiones_cod_prod__cod_prod__ref_stg_productos_  [[32mPASS[0m in 2.51s]
+[0m04:03:57  17 of 21 START test unique_stg_clientes_id_cli ................................. [RUN]
+[0m04:03:57  14 of 21 PASS relationships_stg_movimientos_cod_prod__cod_prod__ref_stg_productos_  [[32mPASS[0m in 2.68s]
+[0m04:03:57  18 of 21 START test unique_stg_comisiones_id_comision .......................... [RUN]
+[0m04:03:58  15 of 21 PASS relationships_stg_movimientos_id_cli__id_cli__ref_stg_clientes_ .. [[32mPASS[0m in 2.79s]
+[0m04:03:58  19 of 21 START test unique_stg_obligaciones_id_oblig ........................... [RUN]
+[0m04:03:58  16 of 21 PASS relationships_stg_obligaciones_id_cli__id_cli__ref_stg_clientes_ . [[32mPASS[0m in 3.09s]
+[0m04:03:58  20 of 21 START test unique_stg_productos_cod_prod .............................. [RUN]
+[0m04:03:59  17 of 21 PASS unique_stg_clientes_id_cli ....................................... [[32mPASS[0m in 2.48s]
+[0m04:03:59  21 of 21 START test unique_stg_sucursales_cod_suc .............................. [RUN]
+[0m04:04:00  18 of 21 PASS unique_stg_comisiones_id_comision ................................ [[32mPASS[0m in 2.90s]
+[0m04:04:00  20 of 21 PASS unique_stg_productos_cod_prod .................................... [[32mPASS[0m in 2.44s]
+[0m04:04:00  19 of 21 PASS unique_stg_obligaciones_id_oblig ................................. [[32mPASS[0m in 2.86s]
+[0m04:04:02  21 of 21 PASS unique_stg_sucursales_cod_suc .................................... [[32mPASS[0m in 2.58s]
+[0m04:04:02  
+[0m04:04:02  Finished running 21 data tests in 0 hours 0 minutes and 18.47 seconds (18.47s).
+[0m04:04:02  
+[0m04:04:02  [32mCompleted successfully[0m
+[0m04:04:02  
+[0m04:04:02  Done. PASS=21 WARN=0 ERROR=0 SKIP=0 TOTAL=21
+
+[exited with code 0]

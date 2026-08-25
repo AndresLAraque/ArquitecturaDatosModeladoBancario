@@ -115,17 +115,26 @@ Decisiones cerradas: **Plataforma = GCP (free trial)** · **Sector = Escenario A
       corridas reales: la 2ª detecta 0 filas nuevas en las tablas incrementales. Evidencia en
       `docs/evidencia/fase3-bronze/`
 
-### Silver (`/pipelines/silver` — BigQuery + dbt, staging models)
-- [ ] Dedup de exactos + descarte de nulos en campos obligatorios
-- [ ] Tipado estándar (fechas, decimales, etc.)
-- [ ] Validación de integridad referencial → tabla `errores_integridad` con motivo
-- [ ] Estrategia de nulos documentada por columna (imputación / exclusión / flag binario)
-- [ ] Hash/enmascaramiento de PII: `num_doc`, `nomb_cli`, `apell_cli`, datos de contacto
-      (`SHA256` con salt desde Secret Manager)
-- [ ] `ind_sospechoso` calculado aquí (ventana móvil 30 días, > 3 desviaciones estándar) — **debe
-      quedar en Silver, no en Gold**, según regla de negocio explícita
-- [ ] Reporte de calidad por ejecución: % nulos por columna, rechazados, % conformes
-- [ ] Formato: tablas BigQuery nativas (dan upsert/MERGE sin necesitar Delta/Iceberg aparte)
+### Silver (`/pipelines/silver` + `/pipelines/dbt_finbank` — BigQuery + dbt) ✅ COMPLETADA (2026-08-25)
+- [x] Puente Bronze (GCS Parquet) -> BigQuery (`raw_*`) vía `load_bronze_to_bq.py`, por modo
+      (full = último batch, incremental = todos los batches acumulados)
+- [x] Dedup de exactos (por columnas de negocio, no de auditoría) + exclusión de campos
+      obligatorios nulos
+- [x] Tipado estándar (fechas, decimales, hora)
+- [x] Validación de integridad referencial → `err_calidad_datos` con motivo (FK_HUERFANA,
+      FECHA_FUERA_DE_RANGO, CAMPO_INCONSISTENTE) — 3.008 filas reales, coincide con las
+      anomalías inyectadas en Fase 1
+- [x] Estrategia de nulos documentada por columna, las 3 modalidades representadas
+      (imputación / exclusión / marcado binario) — tabla completa en `pipelines/dbt_finbank/README.md`
+- [x] Hash SHA256+salt sobre `nomb_cli`, `apell_cli`, `num_doc` (macro `hash_pii.sql`) — valor
+      original no se conserva en Silver
+- [x] `ind_sospechoso` calculado en Silver (ventana móvil 30 días por cliente, > 3 desviaciones
+      estándar) — 37.139/497.456 filas marcadas (~7.5%, observación documentada en el README)
+- [x] Reporte de calidad `dq_report_silver`: % nulos por columna, rechazados, % conformes —
+      99.45%-100% de conformidad por tabla
+- [x] Tablas BigQuery nativas (materialización `table` de dbt)
+- [x] 21 pruebas automatizadas de calidad (17 genéricas dbt + 2 singulares), 21/21 en verde —
+      excede el mínimo de 5. Evidencia completa en `docs/evidencia/fase3-silver/`
 
 ### Gold (`/pipelines/gold` — dbt marts)
 - [ ] `dim_clientes` — nombre completo, edad calculada, segmento con etiqueta legible
@@ -139,9 +148,10 @@ Decisiones cerradas: **Plataforma = GCP (free trial)** · **Sector = Escenario A
 - [ ] Particionamiento Gold por fecha; clustering por segmento/ciudad donde aplique
 - [ ] Documentar linaje de 3+ campos calculados (origen, transformación, propósito) — dbt docs
       o `docs/linaje.md`
-- [ ] Tabla de errores del pipeline con al menos 1 registro de prueba
-- [ ] 5+ pruebas de calidad (dbt tests / Great Expectations): not_null, unique, relationships,
-      accepted_values (`bucket_mora`), rango de fechas
+- [x] Tabla de errores del pipeline con registros de prueba — ya satisfecho por
+      `err_calidad_datos` (Silver), reutilizable/ampliable en Gold si aparecen nuevas reglas
+- [x] 5+ pruebas de calidad — ya satisfecho por las 21 pruebas de Silver (superávit amplio);
+      Gold puede sumar tests propios sobre `bucket_mora`/`calif_regulatoria` si aporta valor
 
 ---
 

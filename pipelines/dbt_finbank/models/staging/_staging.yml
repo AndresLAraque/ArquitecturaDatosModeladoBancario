@@ -1,0 +1,76 @@
+version: 2
+
+models:
+  - name: stg_clientes
+    description: "Clientes limpios, PII enmascarada (hash), nulos tratados."
+    columns:
+      - name: id_cli
+        tests: [not_null, unique]
+      - name: cod_segmento
+        tests:
+          - accepted_values:
+              values: ['BAS', 'STD', 'PRM', 'ELT']
+      - name: estado_cli
+        tests:
+          - accepted_values:
+              values: ['ACTIVO', 'INACTIVO', 'BLOQUEADO']
+
+  - name: stg_productos
+    description: "Catálogo de productos limpio y tipado."
+    columns:
+      - name: cod_prod
+        tests: [not_null, unique]
+      - name: tip_prod
+        tests:
+          - accepted_values:
+              values: ['CRED_LIBRE_INVERSION', 'CRED_ROTATIVO', 'TARJETA_DIGITAL',
+                       'CUENTA_AHORRO_DIGITAL', 'PAGO_PSE', 'TRANSFERENCIA_ACH',
+                       'CORRESPONSALIA', 'RECARGA']
+
+  - name: stg_sucursales
+    description: "Red de sucursales/corresponsales limpia."
+    columns:
+      - name: cod_suc
+        tests: [not_null, unique]
+
+  - name: stg_movimientos
+    description: "Transacciones limpias, deduplicadas, con ind_sospechoso calculado."
+    columns:
+      - name: id_mov
+        tests: [not_null]
+      - name: id_cli
+        tests:
+          - relationships:
+              to: ref('stg_clientes')
+              field: id_cli
+      - name: cod_prod
+        tests:
+          - relationships:
+              to: ref('stg_productos')
+              field: cod_prod
+      - name: cod_estado_mov
+        tests:
+          - accepted_values:
+              values: ['EXITOSA', 'FALLIDA', 'PENDIENTE']
+
+  - name: stg_obligaciones
+    description: "Obligaciones de crédito limpias, sin inconsistencias de saldo."
+    columns:
+      - name: id_oblig
+        tests: [not_null, unique]
+      - name: id_cli
+        tests:
+          - relationships:
+              to: ref('stg_clientes')
+              field: id_cli
+
+  - name: stg_comisiones
+    description: "Comisiones cobradas, limpias y con FK validada."
+    columns:
+      - name: id_comision
+        tests: [not_null, unique]
+      - name: cod_prod
+        tests:
+          - relationships:
+              to: ref('stg_productos')
+              field: cod_prod

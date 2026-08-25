@@ -1,0 +1,31 @@
+=== err_calidad_datos: conteo por tipo (evidencia real, 2026-08-25) ===
+CAMPO_INCONSISTENTE / TB_MOV_FINANCIEROS: 1003
+CAMPO_INCONSISTENTE / TB_OBLIGACIONES: 60
+FECHA_FUERA_DE_RANGO / TB_MOV_FINANCIEROS: 1003
+FECHA_FUERA_DE_RANGO / TB_OBLIGACIONES: 60
+FK_HUERFANA / TB_COMISIONES_LOG: 120
+FK_HUERFANA / TB_MOV_FINANCIEROS: 752
+
+=== dq_report_silver (resumen) ===
+TB_CLIENTES_CORE      filas_totales=10000   filas_rechazadas=0     pct_conformes=100
+TB_PRODUCTOS_CAT      filas_totales=50      filas_rechazadas=0     pct_conformes=100
+TB_SUCURSALES_RED     filas_totales=200     filas_rechazadas=0     pct_conformes=100
+TB_OBLIGACIONES       filas_totales=30000   filas_rechazadas=120   pct_conformes=99.6
+TB_MOV_FINANCIEROS    filas_totales=501500  filas_rechazadas=2752  pct_conformes=99.45
+TB_COMISIONES_LOG     filas_totales=80000   filas_rechazadas=120   pct_conformes=99.85
+
+=== ind_sospechoso ===
+False: 460,117
+True:   37,139  (~7.5% de las transacciones válidas)
+
+NOTA: 7.5% es más alto de lo típico para un umbral de "3 desviaciones
+estándar". Causa identificada: el promedio/desviación móvil de 30 días se
+calcula POR CLIENTE mezclando TODOS los tipos de movimiento (recargas
+pequeñas junto con avances de efectivo grandes, etc.) — un cliente que
+alterna tipos de transacción con escalas de monto muy distintas genera una
+media/desviación "mixta" que hace ver como atípica una transacción grande
+aunque sea normal para SU tipo. Es una lectura fiel a la regla de negocio
+tal como está escrita ("el promedio de los últimos 30 días del mismo
+cliente", sin segmentar por tipo), pero se documenta como una mejora
+razonable a futuro: calcular promedio/desviación por (cliente, tip_mov) en
+vez de solo por cliente, lo que bajaría la tasa de falsos positivos.

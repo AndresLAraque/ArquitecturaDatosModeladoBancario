@@ -41,3 +41,11 @@ Todas las entradas siguen el formato: `YYYY-MM-DD — autor — descripción`.
   `TB_COMISIONES_LOG`. Corrido 2 veces contra datos reales: la segunda corrida confirma la
   incrementalidad (0 filas nuevas en las tablas incrementales). Evidencia en
   `docs/evidencia/fase3-bronze/`.
+- 2026-08-25 — andresypm@gmail.com — Capa Silver (`/pipelines/silver` + `/pipelines/dbt_finbank`):
+  puente Bronze->BigQuery (`load_bronze_to_bq.py`) + proyecto dbt con 6 modelos staging (dedup,
+  tipado, integridad referencial, estrategia de nulos documentada por columna, hash SHA256 de
+  PII, `ind_sospechoso` con ventana móvil 30 días), tabla `err_calidad_datos` y reporte
+  `dq_report_silver`. Corregidos 2 bugs de compatibilidad BigQuery: no se puede particionar una
+  función de ventana por una columna FLOAT64, y RANGE con offset numérico exige ORDER BY
+  numérico (se usa `unix_date()`, no DATE directo). Resultado real: 8/8 modelos, 21/21 tests en
+  verde. Evidencia en `docs/evidencia/fase3-silver/`.
