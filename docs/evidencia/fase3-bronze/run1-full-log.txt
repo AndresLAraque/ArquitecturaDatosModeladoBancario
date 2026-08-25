@@ -1,0 +1,13 @@
+=== Bronze ingestion — batch_id=batch-7b28be107e5d — 2026-08-25T02:38:28.024572+00:00 ===
+  TB_PRODUCTOS_CAT: 50 filas -> gs://finbank-data-platform-dev-bronze/TB_PRODUCTOS_CAT/year=2026/month=08/day=25/batch-7b28be107e5d.parquet (9,560 bytes, 18.98s)
+  TB_SUCURSALES_RED: 200 filas -> gs://finbank-data-platform-dev-bronze/TB_SUCURSALES_RED/year=2026/month=08/day=25/batch-7b28be107e5d.parquet (14,512 bytes, 3.71s)
+  TB_CLIENTES_CORE: 10,000 filas -> gs://finbank-data-platform-dev-bronze/TB_CLIENTES_CORE/year=2026/month=08/day=25/batch-7b28be107e5d.parquet (337,472 bytes, 6.7s)
+  TB_OBLIGACIONES: 30,000 filas -> gs://finbank-data-platform-dev-bronze/TB_OBLIGACIONES/year=2026/month=08/day=25/batch-7b28be107e5d.parquet (872,230 bytes, 10.46s)
+  TB_MOV_FINANCIEROS: 501,500 filas -> gs://finbank-data-platform-dev-bronze/TB_MOV_FINANCIEROS/year=2026/month=08/day=25/batch-7b28be107e5d.parquet (18,365,241 bytes, 76.89s)
+  TB_COMISIONES_LOG: 80,000 filas -> gs://finbank-data-platform-dev-bronze/TB_COMISIONES_LOG/year=2026/month=08/day=25/batch-7b28be107e5d.parquet (1,020,701 bytes, 11.31s)
+
+Log de ejecución: gs://finbank-data-platform-dev-bronze/_logs/batch-7b28be107e5d.json
+
+Bronze terminó exitosamente.
+
+[exited with code 0]

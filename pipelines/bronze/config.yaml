@@ -1,0 +1,40 @@
+# Configuración de la extracción Bronze — Cloud SQL -> GCS.
+# Nombres de recursos deben coincidir con los outputs de /infra (Fase 2).
+
+gcp:
+  project_id: finbank-data-platform-dev
+  region: us-central1
+
+source_db:
+  instance_connection_name: "finbank-data-platform-dev:us-central1:finbank-sqlpg-dev"
+  db_name: finbank
+  db_user: finbank
+  db_password_secret_id: finbank-db-password-dev
+
+bronze_bucket: finbank-data-platform-dev-bronze
+source_system: cloudsql-finbank-sqlpg-dev
+
+# mode: "full" = snapshot completo en cada corrida (dimensiones/catálogos,
+# o tablas mutables sin columna de última modificación en el origen).
+# mode: "incremental" = solo filas nuevas desde la última corrida exitosa,
+# usando watermark_column (debe ser append-only: la fila no debe mutar
+# después de insertada, o el watermark la perdería en corridas futuras).
+tables:
+  TB_PRODUCTOS_CAT:
+    mode: full
+  TB_SUCURSALES_RED:
+    mode: full
+  TB_CLIENTES_CORE:
+    mode: full
+  # TB_OBLIGACIONES es mutable (dias_mora_act, sdo_capital cambian con el
+  # tiempo para una misma obligación) y el origen sintético no modela una
+  # columna de última modificación — snapshot completo es la elección
+  # honesta aquí, no un descuido. Documentado también en /docs.
+  TB_OBLIGACIONES:
+    mode: full
+  TB_MOV_FINANCIEROS:
+    mode: incremental
+    watermark_column: fec_mov
+  TB_COMISIONES_LOG:
+    mode: incremental
+    watermark_column: fec_cobro

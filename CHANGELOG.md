@@ -35,3 +35,9 @@ Todas las entradas siguen el formato: `YYYY-MM-DD — autor — descripción`.
   `"44.0"`/`"<NA>"`, y una caída de socket SSL en `executemany` con 10k+ filas). Carga final
   vía `COPY ... FROM STDIN`, mucho más rápida y estable. Evidencia en
   `data-generation/output/load_evidence_cloudsql.txt`.
+- 2026-08-24 — andresypm@gmail.com — Capa Bronze (`/pipelines/bronze`): extracción Cloud SQL
+  → GCS en Parquet, columnas de auditoría, particionado por fecha de ingesta, log de
+  ejecución en GCS, modo incremental por watermark para `TB_MOV_FINANCIEROS`/
+  `TB_COMISIONES_LOG`. Corrido 2 veces contra datos reales: la segunda corrida confirma la
+  incrementalidad (0 filas nuevas en las tablas incrementales). Evidencia en
+  `docs/evidencia/fase3-bronze/`.

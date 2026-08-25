@@ -1,0 +1,16 @@
+gs://finbank-data-platform-dev-bronze/TB_CLIENTES_CORE/year=2026/month=08/day=25/batch-7b28be107e5d.parquet
+gs://finbank-data-platform-dev-bronze/TB_CLIENTES_CORE/year=2026/month=08/day=25/batch-e714a58cd08a.parquet
+gs://finbank-data-platform-dev-bronze/TB_COMISIONES_LOG/year=2026/month=08/day=25/batch-7b28be107e5d.parquet
+gs://finbank-data-platform-dev-bronze/TB_MOV_FINANCIEROS/year=2026/month=08/day=25/batch-7b28be107e5d.parquet
+gs://finbank-data-platform-dev-bronze/TB_OBLIGACIONES/year=2026/month=08/day=25/batch-7b28be107e5d.parquet
+gs://finbank-data-platform-dev-bronze/TB_OBLIGACIONES/year=2026/month=08/day=25/batch-e714a58cd08a.parquet
+gs://finbank-data-platform-dev-bronze/TB_PRODUCTOS_CAT/year=2026/month=08/day=25/batch-7b28be107e5d.parquet
+gs://finbank-data-platform-dev-bronze/TB_PRODUCTOS_CAT/year=2026/month=08/day=25/batch-e714a58cd08a.parquet
+gs://finbank-data-platform-dev-bronze/TB_SUCURSALES_RED/year=2026/month=08/day=25/batch-7b28be107e5d.parquet
+gs://finbank-data-platform-dev-bronze/TB_SUCURSALES_RED/year=2026/month=08/day=25/batch-e714a58cd08a.parquet
+
+NOTA: TB_MOV_FINANCIEROS y TB_COMISIONES_LOG (modo incremental) tienen un
+solo archivo (batch-7b28be107e5d, primera corrida) porque la segunda
+corrida detectó 0 filas nuevas y omitió escribir un Parquet vacío — así se
+ve la incrementalidad funcionando en la estructura real del bucket. Las
+demás tablas (modo full) sí tienen un archivo por cada corrida.

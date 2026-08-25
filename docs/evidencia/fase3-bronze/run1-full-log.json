@@ -1,0 +1,51 @@
+{
+  "batch_id": "batch-7b28be107e5d",
+  "started_at": "2026-08-25T02:38:28.024572+00:00",
+  "tables": {
+    "TB_PRODUCTOS_CAT": {
+      "mode": "full",
+      "rows": 50,
+      "size_bytes": 9560,
+      "duration_s": 18.98,
+      "path": "gs://finbank-data-platform-dev-bronze/TB_PRODUCTOS_CAT/year=2026/month=08/day=25/batch-7b28be107e5d.parquet"
+    },
+    "TB_SUCURSALES_RED": {
+      "mode": "full",
+      "rows": 200,
+      "size_bytes": 14512,
+      "duration_s": 3.71,
+      "path": "gs://finbank-data-platform-dev-bronze/TB_SUCURSALES_RED/year=2026/month=08/day=25/batch-7b28be107e5d.parquet"
+    },
+    "TB_CLIENTES_CORE": {
+      "mode": "full",
+      "rows": 10000,
+      "size_bytes": 337472,
+      "duration_s": 6.7,
+      "path": "gs://finbank-data-platform-dev-bronze/TB_CLIENTES_CORE/year=2026/month=08/day=25/batch-7b28be107e5d.parquet"
+    },
+    "TB_OBLIGACIONES": {
+      "mode": "full",
+      "rows": 30000,
+      "size_bytes": 872230,
+      "duration_s": 10.46,
+      "path": "gs://finbank-data-platform-dev-bronze/TB_OBLIGACIONES/year=2026/month=08/day=25/batch-7b28be107e5d.parquet"
+    },
+    "TB_MOV_FINANCIEROS": {
+      "mode": "incremental",
+      "rows": 501500,
+      "size_bytes": 18365241,
+      "duration_s": 76.89,
+      "path": "gs://finbank-data-platform-dev-bronze/TB_MOV_FINANCIEROS/year=2026/month=08/day=25/batch-7b28be107e5d.parquet"
+    },
+    "TB_COMISIONES_LOG": {
+      "mode": "incremental",
+      "rows": 80000,
+      "size_bytes": 1020701,
+      "duration_s": 11.31,
+      "path": "gs://finbank-data-platform-dev-bronze/TB_COMISIONES_LOG/year=2026/month=08/day=25/batch-7b28be107e5d.parquet"
+    }
+  },
+  "errors": [],
+  "finished_at": "2026-08-25T02:40:39.444949+00:00",
+  "success": true
+}

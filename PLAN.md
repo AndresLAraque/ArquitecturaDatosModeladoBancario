@@ -106,12 +106,14 @@ Decisiones cerradas: **Plataforma = GCP (free trial)** · **Sector = Escenario A
 
 **Carpeta:** `/pipelines`
 
-### Bronze (`/pipelines/bronze`)
-- [ ] Extracción Cloud SQL → GCS en Parquet, sin transformar esquema
-- [ ] 3 columnas de auditoría: `ingestion_ts`, `source_system`, `batch_id`
-- [ ] Particionado `year/month/day` por fecha de ingesta
-- [ ] Log de ejecución (registros procesados, tamaño, duración) — tabla o archivo JSON de logs
-- [ ] Modo incremental: watermark sobre `fec_mov`/`fec_cobro`/etc. o columna de última modificación
+### Bronze (`/pipelines/bronze`) ✅ COMPLETADA (2026-08-24)
+- [x] Extracción Cloud SQL → GCS en Parquet, sin transformar esquema
+- [x] 3 columnas de auditoría: `ingestion_ts`, `source_system`, `batch_id`
+- [x] Particionado `year/month/day` por fecha de ingesta
+- [x] Log de ejecución (registros procesados, tamaño, duración) en `gs://.../_logs/<batch_id>.json`
+- [x] Modo incremental (watermark en GCS) sobre `fec_mov`/`fec_cobro` — demostrado con 2
+      corridas reales: la 2ª detecta 0 filas nuevas en las tablas incrementales. Evidencia en
+      `docs/evidencia/fase3-bronze/`
 
 ### Silver (`/pipelines/silver` — BigQuery + dbt, staging models)
 - [ ] Dedup de exactos + descarte de nulos en campos obligatorios
