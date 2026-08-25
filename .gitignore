@@ -32,6 +32,9 @@ service-account*.json
 .DS_Store
 Thumbs.db
 
+# Notas personales, NO para el evaluador
+docs/BITACORA-TECNICA-PERSONAL.md
+
 # Data (generated localmente, no versionar los volúmenes grandes) —
 # pero SÍ versionar la evidencia pequeña: anomalies_log.csv,
 # generation_summary.json, load_evidence.txt
