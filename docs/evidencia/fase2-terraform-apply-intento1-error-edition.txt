@@ -1,0 +1,20 @@
+Primer intento de `terraform apply` (entorno dev) — 2026-08-24
+41 de 44 recursos se crearon correctamente. Falló la instancia Cloud SQL:
+
+Error: Error, failed to create instance finbank-sqlpg-dev: googleapi: Error 400:
+Invalid request: Invalid Tier (db-f1-micro) for (ENTERPRISE_PLUS) Edition.
+Use a predefined Tier like db-perf-optimized-N-* instead. Learn more at
+https://cloud.google.com/sql/docs/postgres/create-instance#machine-types., invalid
+
+  with google_sql_database_instance.postgres,
+  on cloudsql.tf line 10, in resource "google_sql_database_instance" "postgres":
+  10: resource "google_sql_database_instance" "postgres" {
+
+Causa: GCP asigna por defecto la edición ENTERPRISE_PLUS a las instancias
+Cloud SQL nuevas, que no admite tiers compartidos (db-f1-micro, db-g1-small).
+
+Corrección aplicada: se agregó `edition = "ENTERPRISE"` explícito en el
+bloque `settings` de cloudsql.tf. El segundo apply (ver
+fase2-terraform-apply.txt) creó los 3 recursos restantes (instancia + base
++ usuario) sin tocar los 41 ya existentes — Terraform es incremental por
+diseño, así que este error no requirió ningún rollback.

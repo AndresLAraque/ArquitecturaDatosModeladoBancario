@@ -75,26 +75,30 @@ Decisiones cerradas: **Plataforma = GCP (free trial)** · **Sector = Escenario A
 
 ## Fase 2 — Infraestructura como código (Terraform)
 
-**Carpeta:** `/infra`
+**Carpeta:** `/infra` — ✅ COMPLETADA (2026-08-24), 44 recursos aplicados en `dev`
 
-- [ ] Backend remoto: bucket GCS dedicado para `terraform.tfstate` (creado *fuera* de Terraform,
-      con un `gcloud storage buckets create` inicial, o en un módulo bootstrap aparte)
-- [ ] Recursos mínimos GCP:
-  - [ ] 3 buckets GCS: `bronze`, `silver`, `gold` (o prefijos dentro de uno con IAM por prefijo)
-  - [ ] BigQuery dataset(s): `finbank_silver`, `finbank_gold` (uno por capa, o por entorno)
-  - [ ] Cloud SQL instance PostgreSQL (tier pequeño, `activation_policy = ALWAYS` solo cuando se use)
-  - [ ] Cloud Run services/jobs para las tareas del pipeline (bronze extract, silver dbt run, gold dbt run)
-  - [ ] Cloud Workflows definition (referenciado, definido en `/orchestration`)
-  - [ ] Cloud Scheduler job (cron diario 02:00 hora local)
-  - [ ] Service Accounts granulares: `sa-ingestion`, `sa-transform`, `sa-orchestrator` (mínimo privilegio)
-  - [ ] Secret Manager: credenciales de Cloud SQL, no expuestas en variables planas
-  - [ ] Cloud Logging (sink si aplica) + Cloud Monitoring alerting policy
-  - [ ] Pub/Sub topic `finbank-alerts` (fallo de tarea, anomalía de volumen, reporte diario)
-- [ ] Variables parametrizadas: `project_id`, `region`, `environment` (`dev`/`prod`), tamaños
-- [ ] Dos entornos vía `dev.tfvars` / `prod.tfvars` (o workspaces)
-- [ ] `outputs.tf`: nombres de buckets, dataset IDs, URLs de Cloud Run, emails de SAs
-- [ ] `.gitignore` con `*.tfstate*`, `.terraform/`, `*.tfvars` si contienen datos sensibles
-- [ ] Evidencia: salida de `terraform apply` + capturas del portal
+- [x] Backend remoto: `gs://finbank-data-platform-dev-tfstate` (bootstrap con `gcloud storage
+      buckets create`, versionado activo, fuera de Terraform)
+- [x] Recursos mínimos GCP (ver detalle completo en `infra/RESOURCES.md`):
+  - [x] 3 buckets GCS: `bronze`, `silver`, `gold`
+  - [x] BigQuery datasets: `finbank_silver_dev`, `finbank_gold_dev`
+  - [x] Cloud SQL PostgreSQL 16 (`finbank-sqlpg-dev`, tier `db-f1-micro`, edición `ENTERPRISE`)
+  - [x] Cloud Workflows (`finbank-pipeline-dev`, placeholder — contenido real en Fase 4)
+  - [x] Cloud Scheduler (`finbank-pipeline-daily-dev`, cron `0 2 * * *` `America/Bogota`, 3
+        reintentos con backoff exponencial)
+  - [x] Service Accounts granulares: `sa-ingestion`, `sa-transform`, `sa-orchestrator`
+  - [x] Secret Manager: password de Cloud SQL generado por `random_password`, nunca en código
+  - [x] Pub/Sub topic `finbank-alerts-dev`
+  - [x] Artifact Registry (`finbank-pipeline-dev`) — para imágenes de Cloud Run de Fase 3/4
+  - [ ] `google_cloud_run_v2_job` — diferido a Fase 3/4 (no hay imagen que desplegar todavía)
+- [x] Variables parametrizadas: `project_id`, `region`, `environment`, `cloud_sql_tier`, etc.
+- [x] Dos entornos vía `environments/dev.tfvars` (aplicado) / `prod.tfvars` (documentado, no
+      aplicado — solo un proyecto disponible en el free trial, ver nota en el archivo)
+- [x] `outputs.tf`: nombres/URLs de todos los recursos
+- [x] `.gitignore`: `*.tfstate*`, `.terraform/`, `*.tfvars` (con excepción explícita para
+      `infra/environments/*.tfvars`, que no llevan secretos), `tfplan*`
+- [x] Evidencia: `docs/evidencia/fase2-terraform-apply.txt` (+ intento 1 con el error de
+      edición de Cloud SQL, documentado y corregido — ver `infra/RESOURCES.md`)
 
 ---
 

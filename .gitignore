@@ -4,9 +4,12 @@
 *.tfstate.*
 *.tfvars
 !*.tfvars.example
+!infra/environments/*.tfvars
+tfplan*
+*.tfplan
 crash.log
 crash.*.log
-.terraform.lock.hcl
+# .terraform.lock.hcl SÍ se versiona (fija versiones exactas de providers)
 
 # Python
 __pycache__/

@@ -1,0 +1,26 @@
+# PLACEHOLDER — provisionado en la Fase 2 (IaC) para que el recurso
+# `google_workflows_workflow` exista desde ya. El contenido REAL —llamadas a
+# los jobs de Cloud Run de Bronze/Silver/Gold, dependencias explícitas,
+# reintentos con backoff exponencial y notificación de resultado— se
+# implementa en la Fase 4 (Orquestación) y reemplaza este archivo. Terraform
+# vuelve a aplicar el cambio automáticamente porque el recurso referencia
+# este archivo por contenido.
+main:
+  steps:
+    - bronze_placeholder:
+        call: sys.log
+        args:
+          text: "Bronze — placeholder Fase 2, implementación real en Fase 4"
+          severity: INFO
+    - silver_placeholder:
+        call: sys.log
+        args:
+          text: "Silver — placeholder Fase 2, implementación real en Fase 4"
+          severity: INFO
+    - gold_placeholder:
+        call: sys.log
+        args:
+          text: "Gold — placeholder Fase 2, implementación real en Fase 4"
+          severity: INFO
+    - finish:
+        return: "FinBank pipeline placeholder OK — pendiente de Fase 4"

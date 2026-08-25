@@ -19,3 +19,10 @@ Todas las entradas siguen el formato: `YYYY-MM-DD — autor — descripción`.
   `ANOMALIES.md`, salida en CSV+JSON+Parquet. Cargado exitosamente en Postgres local
   (Docker, puerto 5434) vía `load_to_postgres.py` — evidencia en
   `data-generation/output/load_evidence.txt`. Diagrama ER agregado en `/docs/er-diagram.md`.
+- 2026-08-24 — andresypm@gmail.com — Fase 2 completada: módulo Terraform en `/infra` (44
+  recursos aplicados en `finbank-data-platform-dev`/`dev`) — buckets bronze/silver/gold,
+  datasets BigQuery Silver/Gold, Cloud SQL Postgres 16, 3 service accounts con IAM granular,
+  Secret Manager, Pub/Sub, Artifact Registry, Cloud Workflows + Cloud Scheduler (placeholder,
+  se completa en Fase 4). Backend remoto de estado en GCS. Corregido sobre la marcha un error
+  de edición de Cloud SQL (`ENTERPRISE_PLUS` no soporta `db-f1-micro`). Evidencia y lista de
+  recursos en `docs/evidencia/` e `infra/RESOURCES.md`.
