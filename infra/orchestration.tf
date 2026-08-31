@@ -7,13 +7,14 @@
 # (dependencias Bronze->Silver->Gold, reintentos, backoff, alertas).
 
 resource "google_workflows_workflow" "pipeline" {
-  name            = "${var.resource_prefix}-pipeline-${var.environment}"
-  project         = var.project_id
-  region          = var.region
-  description     = "Orquesta Bronze -> Silver -> Gold del pipeline FinBank."
-  service_account = google_service_account.orchestrator.id
-  source_contents = file("${path.module}/../orchestration/pipeline_workflow.yaml")
-  labels          = var.labels
+  name                = "${var.resource_prefix}-pipeline-${var.environment}"
+  project             = var.project_id
+  region              = var.region
+  description         = "Orquesta Bronze -> Silver -> Gold del pipeline FinBank."
+  service_account     = google_service_account.orchestrator.id
+  source_contents     = file("${path.module}/../orchestration/pipeline_workflow.yaml")
+  labels              = var.labels
+  deletion_protection = var.environment != "dev" # en prod, protege de un destroy accidental
 
   depends_on = [google_project_service.apis]
 }

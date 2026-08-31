@@ -11,9 +11,10 @@ locals {
 }
 
 resource "google_cloud_run_v2_job" "bronze" {
-  name     = "${var.resource_prefix}-bronze-${var.environment}"
-  project  = var.project_id
-  location = var.region
+  name                = "${var.resource_prefix}-bronze-${var.environment}"
+  project             = var.project_id
+  location            = var.region
+  deletion_protection = var.environment != "dev" # en prod, protege de un destroy accidental
 
   template {
     template {
@@ -38,9 +39,10 @@ resource "google_cloud_run_v2_job" "bronze" {
 }
 
 resource "google_cloud_run_v2_job" "silver" {
-  name     = "${var.resource_prefix}-silver-${var.environment}"
-  project  = var.project_id
-  location = var.region
+  name                = "${var.resource_prefix}-silver-${var.environment}"
+  project             = var.project_id
+  location            = var.region
+  deletion_protection = var.environment != "dev" # en prod, protege de un destroy accidental
 
   template {
     template {
@@ -69,9 +71,10 @@ resource "google_cloud_run_v2_job" "silver" {
 }
 
 resource "google_cloud_run_v2_job" "gold" {
-  name     = "${var.resource_prefix}-gold-${var.environment}"
-  project  = var.project_id
-  location = var.region
+  name                = "${var.resource_prefix}-gold-${var.environment}"
+  project             = var.project_id
+  location            = var.region
+  deletion_protection = var.environment != "dev" # en prod, protege de un destroy accidental
 
   template {
     template {
